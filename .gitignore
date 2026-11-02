@@ -1,2 +1,9 @@
 node_modules
 .DS_Store
+Thumbs.db
+.env
+.env.*
+*.log
+.mintlify
+.vscode
+.idea
