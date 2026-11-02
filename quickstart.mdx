@@ -50,7 +50,16 @@ curl https://api-us.larynth.com/v1/assistants \
   -d '{"name": "Front desk"}'
 ```
 
-The response includes the agent `id`. Add a draft version with the greeting, language, mode and model fields, then publish it.
+The response includes the agent `id`. Create the first draft version. `mode`, `language`, `system_prompt` and `greeting_text` are required; in `cascade` mode also pass the speech, language and voice model IDs.
+
+```bash
+curl https://api-us.larynth.com/v1/assistants/$ASSISTANT_ID/versions \
+  -H "Authorization: Bearer $LARYNTH_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"mode": "cascade", "language": "en-US", "system_prompt": "You answer calls for a dental clinic. Collect the caller name and reason for calling.", "greeting_text": "Hello, how can I help?", "stt_model_id": "'"$STT_MODEL_ID"'", "llm_model_id": "'"$LLM_MODEL_ID"'", "tts_model_id": "'"$TTS_MODEL_ID"'", "tts_voice_id": "'"$VOICE_ID"'"}'
+```
+
+The response includes the version number. Publish it.
 
 ```bash
 curl -X POST https://api-us.larynth.com/v1/assistants/$ASSISTANT_ID/versions/1/publish \
