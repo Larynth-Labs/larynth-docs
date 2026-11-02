@@ -1,0 +1,114 @@
+---
+title: Errors
+description: Errors are RFC 9457 problem+json responses with a stable code you can match on.
+---
+
+Failed requests return a non-2xx status and a body with the content type `application/problem+json`.
+
+```json
+{
+  "type": "https://larynth.com/problems/billing.insufficient_credit",
+  "title": "Insufficient credit",
+  "status": 402,
+  "code": "billing.insufficient_credit",
+  "detail": "Add credit to place this call."
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `code` | Stable machine-readable code. Match on this, not on `title` or `detail`. |
+| `type` | A stable URI for the code: `https://larynth.com/problems/<code>`. |
+| `title` | Short summary of the code. |
+| `status` | The HTTP status. |
+| `detail` | Explanation of this occurrence. May change over time. |
+| `errors` | On validation errors, a list of field-level problems. |
+| `retry_at` | When the request may next succeed, for example when a calling window opens. |
+
+Compliance denials use the code of the rule that blocked the call, which starts with `dial.`. Two examples are `dial.denied` and `dial.caller_id.not_allowed`.
+
+## Handling errors
+
+- `4xx` means the request needs to change. Do not retry it unchanged, except `429`.
+- `429` means slow down. Wait for the number of seconds in the `Retry-After` header, then retry.
+- `5xx` means a problem on our side. Retry with backoff. For requests that place calls, send an [Idempotency-Key](/api-reference/idempotency) so a retry cannot place a second call.
+
+## Error codes
+
+### Requests
+
+| Status | Code | Title |
+| --- | --- | --- |
+| `400` | `request.invalid` | Bad request |
+| `404` | `resource.not_found` | Not found |
+| `405` | `request.method_not_allowed` | Method not allowed |
+| `406` | `request.not_acceptable` | Not acceptable |
+| `409` | `resource.conflict` | Conflict |
+| `413` | `request.body_too_large` | Request body too large |
+| `415` | `request.unsupported_media_type` | Unsupported media type |
+| `422` | `request.validation_failed` | Validation failed |
+| `429` | `rate_limited` | Rate limit exceeded |
+
+### Authentication and access
+
+| Status | Code | Title |
+| --- | --- | --- |
+| `401` | `auth.unauthenticated` | Authentication required |
+| `403` | `auth.scope_missing` | API key lacks the required scope |
+| `403` | `auth.forbidden` | Role does not permit this operation |
+| `403` | `auth.api_key_not_allowed` | Operation requires a dashboard session |
+| `403` | `auth.origin_mismatch` | Origin not allowed |
+| `403` | `tenant.required` | Tenant membership required |
+| `403` | `tenant.suspended` | Tenant suspended |
+
+### Idempotency
+
+| Status | Code | Title |
+| --- | --- | --- |
+| `400` | `idempotency.key_required` | Idempotency-Key header required |
+| `409` | `idempotency.key_reused` | Idempotency-Key reused with a different request |
+| `409` | `idempotency.in_progress` | Request with this Idempotency-Key is in progress |
+
+### Billing
+
+| Status | Code | Title |
+| --- | --- | --- |
+| `402` | `billing.insufficient_credit` | Insufficient credit |
+| `402` | `billing.daily_spend_cap` | Daily spend cap reached |
+| `403` | `billing.account_frozen` | Billing account frozen |
+| `422` | `billing.payment_method_required` | Saved payment method required |
+| `422` | `billing.top_up_below_minimum` | Top-up amount below minimum |
+| `429` | `billing.api_key_daily_cap` | API key daily hold cap reached |
+| `429` | `billing.concurrency_limit` | Concurrent call limit reached |
+
+### Calls, assistants and campaigns
+
+| Status | Code | Title |
+| --- | --- | --- |
+| `409` | `assistant.not_published` | Assistant has no published version |
+| `409` | `assistant.version_published` | Assistant version is published and immutable |
+| `409` | `calls.not_active` | Call is not active |
+| `409` | `campaign.invalid_transition` | Campaign state does not allow this transition |
+| `422` | `dial.denied` | Call denied by compliance policy |
+| `422` | `dial.caller_id.not_allowed` | Caller ID not allowed |
+| `502` | `engine.rejected` | Engine refused to start the call |
+| `503` | `calls.no_engine_capacity` | No engine capacity |
+| `503` | `engine.unavailable` | No healthy engine node in the tenant's cell |
+
+### Numbers, knowledge and webhooks
+
+| Status | Code | Title |
+| --- | --- | --- |
+| `409` | `number.unavailable` | Number unavailable |
+| `422` | `knowledge.file_invalid` | Knowledge file unsupported or unreadable |
+| `422` | `knowledge.url_not_allowed` | Knowledge source address not allowed |
+| `422` | `webhook.url_not_allowed` | Webhook URL not allowed |
+
+### Server
+
+| Status | Code | Title |
+| --- | --- | --- |
+| `500` | `internal` | Internal error |
+| `501` | `not_implemented` | Not implemented |
+| `502` | `upstream.error` | Upstream provider error |
+| `503` | `unavailable` | Service unavailable |

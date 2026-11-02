@@ -1,0 +1,47 @@
+---
+title: Authentication
+description: Authenticate with a bearer API key. Each key carries scopes that limit what it can do.
+---
+
+Send your API key in the `Authorization` header on every request.
+
+```bash
+curl https://api-us.larynth.com/v1/calls \
+  -H "Authorization: Bearer $LARYNTH_API_KEY"
+```
+
+Keys look like `lx_<key_id>_<secret>`. Create and revoke them in the dashboard. A key is shown once when you create it, so store it in an environment variable or a secrets manager. Never put a key in browser code or a public repository.
+
+If a key leaks, revoke it in the dashboard and create a new one.
+
+## Scopes
+
+Each key is limited to the scopes you choose. A request that needs a scope the key lacks returns `403` with the code `auth.scope_missing`. Each endpoint page lists the scope it needs.
+
+| Scope | Allows |
+| --- | --- |
+| `assistants:read`, `assistants:write` | Assistants and their versions |
+| `calls:read`, `calls:write` | Reading calls, turns, events and analysis. Placing and ending calls, browser test calls |
+| `recordings:read` | Recording metadata and audio |
+| `campaigns:read`, `campaigns:write` | Campaigns and their contacts |
+| `contacts:read`, `contacts:write` | Contacts and CSV imports |
+| `compliance:read`, `compliance:write` | Consent records, revocations, do-not-call entries, pre-dial decisions |
+| `numbers:read`, `numbers:write` | Phone numbers and inbound routing |
+| `knowledge:read`, `knowledge:write` | Knowledge bases and sources |
+| `billing:read` | Balance, ledger and rates |
+| `webhooks:read`, `webhooks:write` | Webhook endpoints and deliveries |
+
+Give a key only the scopes it needs. An integration that only reads call results needs `calls:read` and nothing else.
+
+## Roles
+
+Some operations also need a minimum role for the person who owns the key. For example, creating a webhook endpoint needs an admin. A request that fails the role check returns `403` with the code `auth.forbidden`.
+
+## Authentication errors
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| `401` | `auth.unauthenticated` | The header is missing or malformed, or the key is revoked. |
+| `403` | `auth.scope_missing` | The key lacks the scope this endpoint needs. |
+| `403` | `auth.forbidden` | The owner's role does not permit this operation. |
+| `403` | `tenant.suspended` | The workspace is suspended. |

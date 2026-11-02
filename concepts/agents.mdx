@@ -1,0 +1,52 @@
+---
+title: "Agents"
+description: "An agent is the instructions, voice and settings behind your phone line."
+---
+
+An agent answers and makes calls for your business. In the API it is called an assistant.
+
+## Versions
+
+An agent has versions. A version is the full set of settings: the greeting, the instructions, the language, the models and voice, and what happens after the call.
+
+- You edit a **draft** version.
+- **Publish** a version to make it live. A published version is immutable.
+- To change a live agent, create a new draft, test it, then publish it.
+
+Numbers and campaigns use the published version. Browser test calls can use the latest draft instead, so you can try a change before it reaches callers.
+
+## What a version contains
+
+| Setting | What it does |
+| - | - |
+| `greeting_text` | The first thing the agent says. |
+| `system_prompt` | The instructions: who the agent is, what it should do and what it should avoid. |
+| `language` | The language of the call. |
+| `mode` | `cascade` or `s2s`. See below. |
+| `knowledge_base_ids` | Knowledge bases the agent can search during a call. See [Knowledge](/concepts/knowledge). |
+| `tools` | Actions the agent can take: end the call, record an opt-out, call an HTTP endpoint, or transfer. See [Handoff](/concepts/handoff). |
+| `post_call` | The summary, the fields to extract and a success check. See [Summaries and extraction](/concepts/summaries). |
+| `max_call_seconds` | A cap on call length. |
+
+Voices and models are chosen from the catalog. List what is enabled with `GET /v1/catalog/voices` and `GET /v1/catalog/models`.
+
+## Modes
+
+- **Cascade** uses a separate speech-to-text model, language model and voice. You pick each one.
+- **S2S** (speech to speech) uses one model that listens and speaks.
+
+Both modes cost the same per minute. See [Billing](/concepts/billing).
+
+## Write good instructions
+
+- Say who the agent answers for and what the business does.
+- List the few things callers usually want, and what to do for each.
+- Say what to collect (name, number, reason) and what to do with it.
+- Say when to hand the call to a person.
+- Say what the agent should not do, such as quoting prices you have not given it.
+
+Keep the greeting short. Then test with real questions in the [browser](/guides/test-in-browser).
+
+## Outbound calls
+
+An agent that places calls should be briefed for that: who it is calling for, why, and how to end politely if the person is not interested. Outbound calls also go through compliance checks before they dial. See [Compliance](/concepts/compliance).

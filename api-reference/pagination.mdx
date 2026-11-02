@@ -1,0 +1,37 @@
+---
+title: Pagination
+description: List endpoints return a page of results and an opaque cursor for the next page.
+---
+
+List endpoints return the newest items first, in pages.
+
+```json
+{
+  "data": [],
+  "next_cursor": "eyJ0IjoiMjAyNi0xMC0yOFQwOTo0MTowM1oifQ"
+}
+```
+
+| Parameter | Description |
+| --- | --- |
+| `limit` | Page size. Default 50, maximum 200. A few endpoints, such as number search, use smaller limits shown on their pages. |
+| `after` | The `next_cursor` from the previous page. |
+
+`next_cursor` is `null` on the last page. Treat cursors as opaque strings. Don't build them yourself or keep them for long periods.
+
+## Walk every page
+
+```bash
+cursor=""
+while :; do
+  page=$(curl -s "https://api-us.larynth.com/v1/calls?limit=200${cursor:+&after=$cursor}" \
+    -H "Authorization: Bearer $LARYNTH_API_KEY")
+  echo "$page" | jq -c '.data[]'
+  cursor=$(echo "$page" | jq -r '.next_cursor // empty')
+  [ -z "$cursor" ] && break
+done
+```
+
+## Filters
+
+Many list endpoints accept filters next to `limit` and `after`. Calls accept `status`, `direction`, `campaign_id`, `since` and `until`, for example. Keep the filters the same while you follow a cursor.

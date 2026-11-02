@@ -1,0 +1,40 @@
+---
+title: "Handoff to a person"
+description: "Transfer a call to a human, warm or cold."
+---
+
+An agent can transfer a call to a person. You set this up with a transfer tool on the agent version, listing the destinations the agent may use.
+
+## Destinations
+
+Each destination has:
+
+| Field | Meaning |
+| - | - |
+| `name` | The agent picks a destination by this name. |
+| `description` | When to use it. The agent reads this. |
+| `e164` or `sip_uri` | Where to send the call. Set exactly one. |
+| `mode` | `cold` or `warm`. |
+| `ring_timeout_seconds` | How long to ring the person before returning to the caller. The default is 25. |
+| `whisper` | Warm transfers only: what the agent says to the person before connecting. |
+
+## Cold transfer
+
+The caller is handed over directly. A `sip_uri` destination works for cold transfers only.
+
+## Warm transfer
+
+The agent puts the caller on hold, calls the person, briefs them, and then connects the two. In `whisper` you can use the variables `{{summary}}` and `{{destination}}`.
+
+## When nobody answers
+
+If the person does not answer, or hangs up during the briefing, the caller returns to the agent. The agent offers to take a message, which goes into the summary.
+
+## Recording after a transfer
+
+Recording continues on both sides after a warm transfer, unless you have turned recording off for the agent. Tell your staff that calls are recorded.
+
+## Tips
+
+- Write each destination `description` as a plain rule, such as "billing questions during business hours".
+- Test the transfer from a browser call before you point a number at the agent.

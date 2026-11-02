@@ -1,0 +1,95 @@
+---
+title: "Outbound with consent"
+description: "Record consent, import contacts and run a campaign through the compliance checks."
+---
+
+Outbound calling is gated. Your business must be verified and your account topped up with paid credit. Every call also passes the checks in [Compliance](/concepts/compliance).
+
+<Warning>
+  Only call people who gave the consent your calls need. Larynth enforces its checks, but you are the caller and the legal responsibility stays with you.
+</Warning>
+
+All examples use fictional 555 numbers.
+
+<Steps>
+  <Step title="Create a contact">
+    ```bash
+    curl https://api-us.larynth.com/v1/contacts \
+      -H "Authorization: Bearer $LARYNTH_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{"e164": "+14155550142", "first_name": "Sam", "timezone": "America/Los_Angeles"}'
+    ```
+
+    The timezone and region help the calling-hours check use the right local time.
+  </Step>
+
+  <Step title="Record consent with evidence">
+    ```bash
+    curl https://api-us.larynth.com/v1/compliance/consents \
+      -H "Authorization: Bearer $LARYNTH_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "e164": "+14155550142",
+        "kind": "express",
+        "source": "web_form",
+        "granted_at": "2026-11-01T15:04:00Z",
+        "scope_type": "tenant",
+        "evidence_text": "Checked the box agreeing to calls on the booking form."
+      }'
+    ```
+
+    A record needs `evidence_ref` or `evidence_text`. Set `scope_type` to `campaign` and add a `scope_id` to limit consent to one campaign.
+  </Step>
+
+  <Step title="Create a campaign">
+    A campaign needs an agent, the numbers it may call from, a purpose, and calling windows in the contact's local time.
+
+    ```bash
+    curl https://api-us.larynth.com/v1/campaigns \
+      -H "Authorization: Bearer $LARYNTH_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Appointment reminders",
+        "assistant_id": "'"$ASSISTANT_ID"'",
+        "number_ids": ["'"$NUMBER_ID"'"],
+        "purpose": "informational",
+        "amd_mode": "voicemail",
+        "voicemail_message": "Hello, this is the clinic with a reminder. Please call us back.",
+        "windows": [{"days": [1, 2, 3, 4, 5], "start_minute": 600, "end_minute": 1020}]
+      }'
+    ```
+
+    Days run from 0 for Sunday to 6 for Saturday. Minutes count from midnight, so 600 is 10:00 and 1020 is 17:00. Your windows can only narrow the legal calling hours, not widen them.
+  </Step>
+
+  <Step title="Enrol contacts">
+    Add existing contacts with `POST /v1/campaigns/{id}/contacts`.
+
+    To bring in many at once, upload a CSV with an `e164` column to `POST /v1/contacts/imports`. Other columns become contact attributes. The upload needs an attestation of how consent was obtained, and a `consent_kind` and `consent_source`. Pass a `campaign_id` to enrol everyone imported. Check progress with `GET /v1/contacts/imports/{id}`.
+  </Step>
+
+  <Step title="Start the campaign">
+    ```bash
+    curl -X POST https://api-us.larynth.com/v1/campaigns/$CAMPAIGN_ID/start \
+      -H "Authorization: Bearer $LARYNTH_API_KEY"
+    ```
+
+    Each contact is checked before it dials. A contact that fails a check is skipped or held until the check can pass, for example until the calling window opens. Pause with `POST /v1/campaigns/{id}/pause`; active calls continue. Resume with `.../resume`.
+  </Step>
+
+  <Step title="Watch results">
+    `GET /v1/campaigns/{id}/stats` returns counters: calls placed, answered, humans, machines and opt-outs. `GET /v1/compliance/decisions` shows why any contact was or was not dialed.
+  </Step>
+</Steps>
+
+## When someone asks to stop
+
+Record it right away with `POST /v1/compliance/revocations`. The number joins your internal Do-Not-Call list and is not called again. The agent can also record an opt-out during a call with the `opt_out` tool.
+
+## Do-Not-Call lists
+
+You bring your own Do-Not-Call registrations for outbound campaigns. Larynth also applies its own opt-out list to every account.
+
+## Retries
+
+The campaign `retry_policy` sets the delay before retrying after no answer, busy, a failure or a left voicemail. A delay that is not set means no retry. `max_attempts` caps total tries per contact.

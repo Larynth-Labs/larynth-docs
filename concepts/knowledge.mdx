@@ -1,0 +1,37 @@
+---
+title: "Knowledge"
+description: "Give an agent your business information so it answers from facts."
+---
+
+A knowledge base is a set of sources the agent can search while it talks, so it answers from your information instead of guessing.
+
+## Sources
+
+| Source | How to add it |
+| - | - |
+| Website | `POST /v1/knowledge-bases/{id}/sources/website` with a start URL. The crawl runs in the background. |
+| File | `POST /v1/knowledge-bases/{id}/sources/file`. PDF, DOCX, TXT, MD or CSV, up to 20 MB. |
+
+A website crawl follows links from the start page, stays on the same host and respects `robots.txt`. You can limit it with `max_depth` and `max_pages`.
+
+## Status
+
+A source is `pending`, `processing`, `ready` or `failed`. A failed source carries the reason in `error`. A knowledge base is `ready` once every source is indexed.
+
+## Keep it current
+
+Use `POST /v1/knowledge-bases/{id}/sources/{source_id}/sync` to fetch a website again or re-read a file after it changed.
+
+## Attach it to an agent
+
+Add the knowledge base id to `knowledge_base_ids` in an agent version. Each knowledge base must be ready when you publish that version. The agent then searches it with a `search_knowledge` tool.
+
+## Test what it finds
+
+`GET /v1/knowledge-bases/{id}/search` runs a query and returns the matching passages. Use it to check that a question finds the right text.
+
+## Tips
+
+- Put the facts callers ask about in one place: hours, services, prices you want quoted, directions.
+- Remove outdated pages, and sync after changes.
+- The agent repeats what it finds, so only add what you want said to callers.

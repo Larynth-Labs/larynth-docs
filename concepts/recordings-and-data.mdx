@@ -1,0 +1,44 @@
+---
+title: "Recordings and data"
+description: "What is recorded, how it is protected, and how long it is kept."
+---
+
+## Recording
+
+Recording is on by default. You can turn it off for each agent.
+
+Callers hear a recording notice on every call, inbound and outbound. The notice cannot be turned off.
+
+<Note>
+  You tell your own staff that calls are recorded. Some states require everyone on a call to agree to recording. Check the rules for your situation.
+</Note>
+
+## Where and how it is stored
+
+- Customer data is stored in the United States.
+- Recordings are encrypted before they are stored, with a separate key for each customer.
+- Browser call audio is encrypted in transit between the browser and Larynth (DTLS-SRTP).
+
+## How long it is kept
+
+| Data | Default |
+| - | - |
+| Recordings | 90 days |
+| Transcripts | 1 year |
+| Call metadata, consent, Do-Not-Call and compliance records | 5 years |
+
+You can shorten the retention of recordings and transcripts. Compliance records cannot be deleted by you.
+
+## Reading recordings
+
+`GET /v1/calls/{call_id}/recordings` lists the recordings for a call, with their `state`, size and `retention_until`. A recording moves through `pending`, `uploaded` and `verified`, or ends as `failed` or `purged`.
+
+`GET /v1/recordings/{id}/audio` streams the audio as WAV. Each access is logged.
+
+## Training
+
+Your calls are not used to train models unless you opt in. It is off by default.
+
+## Questions
+
+Security questions or a report: [support@larynth.com](mailto:support@larynth.com).

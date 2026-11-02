@@ -1,0 +1,51 @@
+---
+title: "Billing"
+description: "How prepaid credit, per-minute pricing and phone numbers are charged."
+---
+
+## Price
+
+| What | Price |
+| - | - |
+| Calls | $0.10 per minute, all-in, with the phone line included |
+| Phone number | $2 per month |
+
+Calls are billed per started minute. A call of 61 seconds is billed as two minutes. The price is the same for inbound, outbound and browser calls, and for both agent modes.
+
+## What is free
+
+- Spam calls that Larynth flags.
+- Calls that last under 10 seconds.
+- $5 of free credit for new accounts, for browser and inbound test calls.
+
+## Prepaid credit
+
+You add credit to your account and calls draw it down.
+
+- Credit is prepaid and non-refundable, except where the law requires a refund.
+- Credit does not expire.
+- Free credit is spent first.
+- Outbound calling needs business verification and a paid top-up. Free credit cannot be used for outbound calls.
+
+While a call is in progress, Larynth holds an amount against your balance. When the call ends, the held amount is replaced by the real charge.
+
+When credit runs out, campaigns pause. Turn on auto top-up to add credit when your balance falls below a threshold you choose.
+
+## See what you were charged
+
+| Endpoint | Returns |
+| - | - |
+| `GET /v1/billing/balance` | Available funds, free credit, the amount held for calls in progress, and your low-balance threshold. |
+| `GET /v1/billing/ledger` | Every charge and top-up, newest first. |
+| `GET /v1/billing/rates` | The rates in force. |
+| `GET /v1/billing/auto-top-up` | Your auto top-up settings. |
+
+Amounts in the API are in micro-USD: 1,000,000 equals $1. A call's final price is `price_micro`, and the minutes billed are in `billable_ms`.
+
+## Refunds
+
+Prepaid credit is non-refundable, except where the law requires it. Ask [support](/support) if something looks wrong on a bill.
+
+## Availability
+
+Billing is in US dollars. Phone numbers are in the United States and Canada.

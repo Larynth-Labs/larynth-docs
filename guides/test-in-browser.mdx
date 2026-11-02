@@ -1,0 +1,39 @@
+---
+title: "Test in the browser"
+description: "Talk to an agent from your browser before it gets a phone number."
+---
+
+Browser calls let you try an agent without a phone number. They use your free credit first, then your balance, at the same $0.10 per minute as other calls.
+
+## In the dashboard
+
+Open the agent and start a browser call. Allow microphone access when your browser asks. Speak as a caller would.
+
+You can test the latest draft before you publish it. A draft test never reaches live callers.
+
+## What to check
+
+- The greeting is short and says who is answering.
+- The agent answers the questions callers actually ask.
+- It collects the details you need and repeats them back.
+- It transfers to a person when it should. See [Handoff](/concepts/handoff).
+- It does not make things up. If it does, tighten the instructions or add the facts to a [knowledge base](/concepts/knowledge).
+
+After the call, open it to read the transcript, the turn timings and the [summary](/concepts/summaries).
+
+## If the call does not connect
+
+- Check that your browser has microphone permission for the dashboard.
+- Try another network. Some networks block the media traffic browser calls need. Larynth tries a direct connection first and then falls back to a relay.
+- Use a current version of Chrome, Edge, Firefox or Safari.
+
+## With the API
+
+A browser call is a WebRTC session. Your client creates an SDP offer, and the API returns the answer.
+
+1. Request relay credentials with `POST /v1/web-calls/ice-servers`. They are short-lived.
+2. Create your peer connection with those servers and wait for ICE gathering to finish. The API takes a complete SDP offer with no trickle candidates.
+3. Send the offer to `POST /v1/assistants/{assistant_id}/web-calls`. Set `use_draft` to test the latest draft instead of the published version.
+4. Apply the returned `sdp_answer`. The call ends on its own after `max_duration_s`.
+
+Most people use the dashboard for this. The API is for building your own test client.

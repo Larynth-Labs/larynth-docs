@@ -1,0 +1,46 @@
+---
+title: "Calls"
+description: "Inbound, outbound and browser calls, and what you get back for each."
+---
+
+A call is one conversation between a person and an agent.
+
+## Directions
+
+| `direction` | What it is |
+| - | - |
+| `inbound` | Someone called one of your numbers. |
+| `outbound` | Your agent called someone. |
+| `web_test` | You talked to the agent in a browser. |
+
+## Status
+
+A call moves through `queued`, `dialing` and `ringing` to `in_progress`, and ends as `completed`, `no_answer`, `busy`, `failed`, `canceled` or `rejected`.
+
+## What you can read for a call
+
+- `GET /v1/calls/{call_id}` returns the call: numbers, direction, status, timing, price and outcome.
+- `GET /v1/calls/{call_id}/turns` returns the conversation turn by turn, with per-turn timings.
+- `GET /v1/calls/{call_id}/analysis` returns the summary and extracted data. See [Summaries and extraction](/concepts/summaries).
+- `GET /v1/calls/{call_id}/recordings` lists recordings. See [Recordings and data](/concepts/recordings-and-data).
+- `GET /v1/calls/{call_id}/events` returns the raw events in order.
+
+## Placing a call
+
+`POST /v1/calls` places one outbound call. It goes through the same compliance checks as a campaign, so it can be refused. You set a `purpose` of `informational` or `telemarketing`, and `from_e164` must be an active number on your account. See [Compliance](/concepts/compliance).
+
+## Ending a call
+
+`POST /v1/calls/{call_id}/end` hangs up an active call.
+
+## Voicemail and answering machines
+
+For outbound calls, `amd_mode` controls what happens when a machine answers: `off`, `hangup_on_machine` or `voicemail`. The call records what Larynth detected in `amd_verdict`.
+
+## Browser calls
+
+Browser calls are for testing. They use WebRTC and are billed like other calls, from your free credit first. See [Test in the browser](/guides/test-in-browser).
+
+## Concurrency
+
+New accounts can run 5 calls at once. After business verification or your first top-up the limit is 20. If you need more, ask [support](/support).

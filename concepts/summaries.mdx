@@ -1,0 +1,59 @@
+---
+title: "Summaries and extraction"
+description: "What Larynth writes after every call, and how to get structured data out of it."
+---
+
+After a call ends, Larynth analyses it. You get a short summary, and any fields you asked for. This is called post-call analysis.
+
+## What you get
+
+`GET /v1/calls/{call_id}/analysis` returns:
+
+| Field | Meaning |
+| - | - |
+| `summary` | A short summary of the call. |
+| `data` | The extracted fields, as an object. |
+| `successful` and `reason` | Whether the call met your success criteria, and why. Present only when you set `success_criteria`. |
+
+The summary also appears on list items in `GET /v1/calls` once the call has been analysed.
+
+Analysis runs after the call, so it appears a short time after the call ends. When it is ready, Larynth sends a `call.analyzed` [webhook](/webhooks/events).
+
+## Set it up
+
+Configure post-call analysis in the agent version, under `post_call`.
+
+| Setting | Meaning |
+| - | - |
+| `summary_enabled` | Turn the summary on or off. It is on unless you turn it off. |
+| `summary_prompt` | Replace the default summary instruction, for example to ask for a format. |
+| `extraction_fields` | The details to pull from the conversation. |
+| `success_criteria` | A plain statement of what a good call looks like. |
+
+## Extraction fields
+
+Each field has a `name`, a `type`, and optionally a `description`. Types are `string`, `number`, `boolean`, `enum` and `date`. An `enum` field needs a list of allowed values. Mark a field `required` when the model must return a value.
+
+```json
+{
+  "post_call": {
+    "summary_enabled": true,
+    "extraction_fields": [
+      { "name": "caller_name", "type": "string", "description": "The caller's full name" },
+      { "name": "reason", "type": "enum", "enum": ["new_patient", "reschedule", "billing", "other"], "required": true },
+      { "name": "callback_requested", "type": "boolean" }
+    ],
+    "success_criteria": "The caller's request was recorded and they were told what happens next."
+  }
+}
+```
+
+## Use the result
+
+- Read it in the dashboard on the call page.
+- Fetch it with the API.
+- Receive it by webhook, and send it to your own system. See [Webhooks](/webhooks/overview).
+
+## Cost
+
+Analysis cost is returned as `cost_micro` on the analysis. See [Billing](/concepts/billing) for how call charges are shown.

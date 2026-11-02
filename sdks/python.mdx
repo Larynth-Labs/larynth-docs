@@ -1,0 +1,147 @@
+---
+title: Python SDK
+description: A typed client for the Larynth API, with a webhook signature verifier.
+---
+
+The Python SDK is generated from the same OpenAPI spec as the [API reference](/api-reference/introduction). Every endpoint is a module with sync and async functions. It needs Python 3.10 or later.
+
+## Install
+
+```bash
+pip install larynth
+```
+
+## Configure
+
+Create an API key in the dashboard and keep it in an environment variable.
+
+```python
+import os
+
+from larynth import authenticated_client
+
+client = authenticated_client(
+    os.environ["LARYNTH_API_KEY"],
+    "https://api-us.larynth.com",
+)
+```
+
+Endpoint modules live under `larynth.generated.api.<tag>`, and each is named after its operation: `list_assistants`, `create_call`, `get_call_analysis`. Request and response models live in `larynth.generated.models`.
+
+Each module has four functions:
+
+| Function | Returns |
+| --- | --- |
+| `sync` | The parsed result, or a `Problem` when the API returned an error. |
+| `sync_detailed` | A response with `status_code`, `headers` and `parsed`. |
+| `asyncio` | Async version of `sync`. |
+| `asyncio_detailed` | Async version of `sync_detailed`. |
+
+Use the client as a context manager so connections are closed.
+
+## Example: list assistants
+
+```python
+from larynth.generated.api.assistants import list_assistants
+
+with client:
+    page = list_assistants.sync(client=client, limit=20)
+
+for assistant in page.data:
+    print(assistant.id, assistant.name, assistant.published_version)
+```
+
+## Example: place a call
+
+`create_call` needs an idempotency key so a retry cannot place the call twice. See [idempotency](/api-reference/idempotency). Use only numbers you have the right to call. Outbound calls go through the same compliance checks as a campaign.
+
+```python
+import uuid
+
+from larynth.generated.api.calls import create_call
+from larynth.generated.models.create_call_request import CreateCallRequest
+
+with client:
+    call = create_call.sync(
+        client=client,
+        idempotency_key=str(uuid.uuid4()),
+        body=CreateCallRequest(
+            assistant_id=uuid.UUID("3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11"),
+            from_e164="+14155550100",
+            to_e164="+14155550123",
+            purpose="informational",
+        ),
+    )
+
+print(call.call_id, call.status)
+```
+
+## Example: read a call summary
+
+```python
+from larynth.generated.api.calls import get_call_analysis
+
+with client:
+    analysis = get_call_analysis.sync(
+        "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+        client=client,
+    )
+
+print(analysis.summary)
+print(analysis.data.to_dict())
+```
+
+## Example: create a webhook endpoint
+
+```python
+from larynth.generated.api.webhooks import create_webhook
+from larynth.generated.models.create_webhook_request import CreateWebhookRequest
+
+with client:
+    endpoint = create_webhook.sync(
+        client=client,
+        body=CreateWebhookRequest(
+            url="https://example.com/hooks/larynth",
+            event_types=["call.ended", "call.analyzed"],
+        ),
+    )
+
+print(endpoint.id)
+print(endpoint.secret)
+```
+
+The secret is shown once. Store it before you leave the script.
+
+## Handle errors
+
+`sync` returns a `Problem` model when the API answers with a documented error status. Check for it before you use the result. `sync_detailed` gives you the status code as well.
+
+```python
+from larynth.generated.api.calls import get_call
+from larynth.generated.models.problem import Problem
+
+with client:
+    result = get_call.sync(
+        "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+        client=client,
+    )
+
+if isinstance(result, Problem):
+    print(result.status, result.code, result.title)
+else:
+    print(result.status)
+```
+
+A response with a status the spec doesn't list raises `larynth.generated.errors.UnexpectedStatus`.
+
+## Verify webhooks
+
+```python
+import os
+
+from larynth import verify
+
+verify(os.environ["LARYNTH_WEBHOOK_SECRET"], headers, raw_body)
+```
+
+`verify` raises `WebhookVerificationError` if the signature or timestamp is wrong. `sign` builds a signature, which is useful in tests. See [verify signatures](/webhooks/verify-signatures).

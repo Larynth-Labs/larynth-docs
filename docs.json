@@ -1,0 +1,282 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Larynth",
+  "description": "Documentation for Larynth, the AI phone agent that answers and makes calls for your business.",
+  "colors": {
+    "primary": "#1a4eda",
+    "light": "#6cabff",
+    "dark": "#1a4eda"
+  },
+  "appearance": {
+    "default": "system"
+  },
+  "fonts": {
+    "heading": {
+      "family": "Hanken Grotesk",
+      "weight": 600
+    },
+    "body": {
+      "family": "Hanken Grotesk"
+    }
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://larynth.com"
+  },
+  "favicon": "/favicon.svg",
+  "navbar": {
+    "links": [
+      {
+        "label": "Dashboard",
+        "href": "https://app.larynth.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Start free",
+      "href": "https://app.larynth.com/signup"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "index",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
+              "concepts/agents",
+              "concepts/phone-numbers",
+              "concepts/calls",
+              "concepts/knowledge",
+              "concepts/handoff",
+              "concepts/summaries",
+              "concepts/billing",
+              "concepts/compliance",
+              "concepts/recordings-and-data"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/forward-your-number",
+              "guides/outbound-with-consent",
+              "guides/test-in-browser"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "support"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/authentication",
+              "api-reference/errors",
+              "api-reference/pagination",
+              "api-reference/idempotency"
+            ]
+          },
+          {
+            "group": "Assistants",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/assistants",
+              "POST /v1/assistants",
+              "DELETE /v1/assistants/{id}",
+              "GET /v1/assistants/{id}",
+              "PATCH /v1/assistants/{id}",
+              "GET /v1/assistants/{id}/versions",
+              "POST /v1/assistants/{id}/versions",
+              "GET /v1/assistants/{id}/versions/{v}",
+              "POST /v1/assistants/{id}/versions/{v}/publish"
+            ]
+          },
+          {
+            "group": "Calls",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "POST /v1/assistants/{assistant_id}/web-calls",
+              "GET /v1/calls",
+              "POST /v1/calls",
+              "GET /v1/calls/{call_id}",
+              "GET /v1/calls/{call_id}/analysis",
+              "POST /v1/calls/{call_id}/end",
+              "GET /v1/calls/{call_id}/events",
+              "GET /v1/calls/{call_id}/turns",
+              "POST /v1/web-calls/ice-servers"
+            ]
+          },
+          {
+            "group": "Recordings",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/calls/{call_id}/recordings",
+              "GET /v1/recordings/{id}/audio"
+            ]
+          },
+          {
+            "group": "Campaigns",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/campaigns",
+              "POST /v1/campaigns",
+              "GET /v1/campaigns/{id}",
+              "PATCH /v1/campaigns/{id}",
+              "POST /v1/campaigns/{id}/archive",
+              "GET /v1/campaigns/{id}/contacts",
+              "POST /v1/campaigns/{id}/contacts",
+              "POST /v1/campaigns/{id}/pause",
+              "POST /v1/campaigns/{id}/resume",
+              "POST /v1/campaigns/{id}/start",
+              "GET /v1/campaigns/{id}/stats"
+            ]
+          },
+          {
+            "group": "Contacts",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/contacts",
+              "POST /v1/contacts",
+              "POST /v1/contacts/imports",
+              "GET /v1/contacts/imports/{id}",
+              "DELETE /v1/contacts/{id}",
+              "GET /v1/contacts/{id}",
+              "PATCH /v1/contacts/{id}"
+            ]
+          },
+          {
+            "group": "Compliance",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/compliance/consents",
+              "POST /v1/compliance/consents",
+              "GET /v1/compliance/decisions",
+              "GET /v1/compliance/dnc",
+              "POST /v1/compliance/dnc",
+              "POST /v1/compliance/revocations"
+            ]
+          },
+          {
+            "group": "Phone numbers",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/numbers",
+              "POST /v1/numbers",
+              "GET /v1/numbers/available",
+              "DELETE /v1/numbers/{id}",
+              "GET /v1/numbers/{id}",
+              "PATCH /v1/numbers/{id}"
+            ]
+          },
+          {
+            "group": "Knowledge bases",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/knowledge-bases",
+              "POST /v1/knowledge-bases",
+              "DELETE /v1/knowledge-bases/{id}",
+              "GET /v1/knowledge-bases/{id}",
+              "PATCH /v1/knowledge-bases/{id}",
+              "GET /v1/knowledge-bases/{id}/search",
+              "GET /v1/knowledge-bases/{id}/sources",
+              "POST /v1/knowledge-bases/{id}/sources/file",
+              "POST /v1/knowledge-bases/{id}/sources/website",
+              "DELETE /v1/knowledge-bases/{id}/sources/{source_id}",
+              "GET /v1/knowledge-bases/{id}/sources/{source_id}",
+              "POST /v1/knowledge-bases/{id}/sources/{source_id}/sync"
+            ]
+          },
+          {
+            "group": "Billing",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/billing/auto-top-up",
+              "GET /v1/billing/balance",
+              "GET /v1/billing/ledger",
+              "GET /v1/billing/rates"
+            ]
+          },
+          {
+            "group": "Catalog",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/catalog/models",
+              "GET /v1/catalog/voices"
+            ]
+          },
+          {
+            "group": "Webhook endpoints",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/webhooks",
+              "POST /v1/webhooks",
+              "DELETE /v1/webhooks/{id}",
+              "GET /v1/webhooks/{id}",
+              "PATCH /v1/webhooks/{id}",
+              "GET /v1/webhooks/{id}/deliveries",
+              "POST /v1/webhooks/{id}/rotate-secret",
+              "POST /v1/webhooks/{id}/test"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Webhooks",
+        "groups": [
+          {
+            "group": "Webhooks",
+            "pages": [
+              "webhooks/overview",
+              "webhooks/events",
+              "webhooks/verify-signatures"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SDKs",
+        "groups": [
+          {
+            "group": "SDKs",
+            "pages": [
+              "sdks/typescript",
+              "sdks/python"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {}
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude"
+    ]
+  }
+}

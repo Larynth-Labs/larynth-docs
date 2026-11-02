@@ -1,0 +1,38 @@
+---
+title: "Phone numbers"
+description: "Order a number, route it to an agent, or forward your existing number."
+---
+
+A phone number sends inbound calls to an agent, and is the caller ID for outbound calls. Larynth numbers are US and Canadian. A number costs $2 per month.
+
+## Ordering
+
+Search with `GET /v1/numbers/available`, filtering by country and area code. Then order one with `POST /v1/numbers`. Ordering is asynchronous: the number starts as `ordering` and becomes `active` when it is ready.
+
+## Routing
+
+Each number has one routing choice, set in `route_type`:
+
+| `route_type` | What happens to an inbound call |
+| - | - |
+| `assistant` | The agent in `assistant_id` answers. |
+| `forward` | The call is forwarded to `forward_to_e164`. |
+| `none` | Calls are not answered. |
+
+Change routing at any time with `PATCH /v1/numbers/{id}`.
+
+## Keep your existing number
+
+You can keep your current business number and forward calls to a Larynth number. Larynth does not port numbers yet. See [Forward your number](/guides/forward-your-number).
+
+## Releasing a number
+
+`DELETE /v1/numbers/{id}` releases a number. It is asynchronous, and the status moves through `releasing` to `released`.
+
+## Number status
+
+`ordering`, `active`, `suspended`, `releasing`, `released` and `failed`.
+
+## Emergency numbers
+
+Outbound calls to emergency numbers (911) are blocked.

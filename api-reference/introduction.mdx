@@ -1,0 +1,64 @@
+---
+title: API overview
+description: The Larynth REST API. JSON over HTTPS, bearer API keys, cursor pagination and problem+json errors.
+---
+
+The Larynth API lets you manage assistants, phone numbers, contacts, campaigns, calls and webhooks from your own code. Everything you can do in the dashboard with these objects is available here.
+
+## Base URL
+
+```text
+https://api-us.larynth.com
+```
+
+All paths start with `/v1`. Requests and responses are JSON, except file uploads (multipart) and recording audio (WAV). Larynth serves the United States and Canada.
+
+## Make a first request
+
+Create an API key in the dashboard, then list your assistants.
+
+```bash
+curl https://api-us.larynth.com/v1/assistants \
+  -H "Authorization: Bearer $LARYNTH_API_KEY"
+```
+
+```json
+{
+  "data": [
+    {
+      "id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+      "name": "Front desk",
+      "status": "active",
+      "latest_version": 3,
+      "published_version": 3,
+      "created_at": "2026-10-20T14:02:11Z",
+      "updated_at": "2026-10-28T09:41:03Z"
+    }
+  ],
+  "next_cursor": null
+}
+```
+
+## Conventions
+
+- Timestamps are RFC 3339 in UTC.
+- Phone numbers are E.164, for example `+14155550123`.
+- Money is in micro-USD (1,000,000 micro-USD is one dollar) unless a field says otherwise.
+- Request bodies reject unknown fields. A typo in a field name returns a validation error instead of being ignored.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/api-reference/authentication">
+    API keys and scopes.
+  </Card>
+  <Card title="Errors" icon="triangle-exclamation" href="/api-reference/errors">
+    Problem responses and error codes.
+  </Card>
+  <Card title="Pagination" icon="list" href="/api-reference/pagination">
+    Cursors and filters on list endpoints.
+  </Card>
+  <Card title="Idempotency" icon="repeat" href="/api-reference/idempotency">
+    Retry requests that place calls safely.
+  </Card>
+</CardGroup>

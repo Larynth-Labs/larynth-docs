@@ -1,0 +1,57 @@
+---
+title: "Compliance"
+description: "The checks Larynth runs on outbound calls, and what stays your responsibility."
+---
+
+<Warning>
+  Larynth's checks help you follow calling rules. They do not make a call lawful on their own, and Larynth does not promise compliance. You are the caller. Your legal responsibility stays with you. Ask your own lawyer about your situation.
+</Warning>
+
+## Checks before an outbound call
+
+Every outbound call, from a campaign or from `POST /v1/calls`, goes through these gates before it dials:
+
+| Check | What it does |
+| - | - |
+| Verified business | The business behind the account is verified before it can place outbound calls. Unverified accounts can only receive calls. |
+| Consent on file | The contact needs a consent record: how and when they opted in, and what they agreed to. No record, no call. |
+| Do-Not-Call scrub | The number is checked against your Do-Not-Call list and the Larynth opt-out list. |
+| Calling hours | The contact's state and local time are checked. Outside the allowed window the call waits. |
+| AI disclosure | The agent says it is an AI assistant at the start of the call and names the business it calls for. |
+| Recording notice | Callers hear a recording notice. |
+
+Outbound calls to emergency numbers (911) are blocked.
+
+## When a call is refused
+
+A refused call returns an error with a stable `code` that names the rule, for example `dial.window.closed`. When the refusal is about calling hours, the error includes `retry_at`, the next moment the call may be allowed.
+
+`GET /v1/compliance/decisions` lists every pre-dial decision, with the rule, the result and the time. Use it to see why a contact was not dialed.
+
+## Consent
+
+Record consent with `POST /v1/compliance/consents`. A record needs:
+
+- the number (`e164`) and the `kind`: `express` or `express_written`
+- when it was granted (`granted_at`) and how it was captured (`source`)
+- evidence: an `evidence_ref` or `evidence_text`
+- a scope: the whole account, or one campaign
+
+Consent records are kept and cannot be deleted by you.
+
+## Opt-outs and Do-Not-Call
+
+- `POST /v1/compliance/revocations` records that someone withdrew consent. The number is added to your internal Do-Not-Call list.
+- `POST /v1/compliance/dnc` adds a number to your internal list directly.
+- Larynth keeps its own opt-out list, fed by opt-outs on calls, and applies it to every account.
+- The agent can end a call and record an opt-out with the `opt_out` tool.
+
+## What stays with you
+
+- You follow the laws that apply to your calls.
+- You bring your own Do-Not-Call registrations for outbound campaigns.
+- You only call people who gave the consent your calls need.
+- You tell your own staff that calls are recorded.
+- You review the terms and the acceptable use policy for your situation.
+
+See [Outbound with consent](/guides/outbound-with-consent) for the working steps.

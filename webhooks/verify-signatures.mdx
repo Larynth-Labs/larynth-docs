@@ -1,0 +1,179 @@
+---
+title: Verify signatures
+description: Check that a webhook came from Larynth by recomputing its HMAC-SHA256 signature.
+---
+
+Anyone who knows your endpoint URL can send it a request. Verify the signature on every delivery and reject anything that fails.
+
+Larynth signs webhooks with the [Standard Webhooks](https://www.standardwebhooks.com) scheme.
+
+## How the signature is built
+
+1. Take the endpoint secret. Remove the `whsec_` prefix and base64-decode the rest. The result is the HMAC key.
+2. Build the signed content: `<webhook-id>.<webhook-timestamp>.<raw body>`, joined with dots.
+3. Compute HMAC-SHA256 of the signed content with the key, then base64-encode it.
+4. The signature is `v1,` followed by that value.
+
+The `webhook-signature` header holds one or more signatures separated by spaces, for example `v1,AAA= v1,BBB=`. The request is valid if any `v1` signature matches.
+
+Use the raw request body, exactly as received. If you parse the JSON and serialize it again, the bytes change and the signature no longer matches.
+
+Also check `webhook-timestamp`. Reject requests more than 5 minutes away from your clock. This stops an attacker from replaying an old request.
+
+## Test vector
+
+Use this to check your code before you go live.
+
+| Input | Value |
+| --- | --- |
+| Secret | `whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=` |
+| `webhook-id` | `msg_0123456789abcdef` |
+| `webhook-timestamp` | `1793534400` |
+| Body | `{"id":"msg_0123456789abcdef","type":"call.ended","timestamp":"2026-11-01T12:00:00Z","data":{"call_id":"c1"}}` |
+| Signature | `v1,49s/QnkINzN3EO848IVtTP/5Tpo+qBtrkQsYjg9+dhs=` |
+
+## Verify with an SDK
+
+The TypeScript and Python SDKs include a verifier. It checks the headers, the timestamp window and the signature in constant time, and throws when anything is wrong. See the [TypeScript](/sdks/typescript) and [Python](/sdks/python) pages for installation.
+
+<CodeGroup>
+
+```ts TypeScript
+import { verifyWebhook, WebhookVerificationError } from "@larynth/sdk";
+
+const secret = process.env.LARYNTH_WEBHOOK_SECRET!;
+
+export function handle(headers: Record<string, string>, rawBody: string) {
+  try {
+    verifyWebhook(secret, headers, rawBody);
+  } catch (error) {
+    if (error instanceof WebhookVerificationError) {
+      return { status: 400 };
+    }
+    throw error;
+  }
+  const event = JSON.parse(rawBody);
+  return { status: 200, event };
+}
+```
+
+```python Python
+import json
+import os
+
+from larynth import WebhookVerificationError, verify
+
+secret = os.environ["LARYNTH_WEBHOOK_SECRET"]
+
+
+def handle(headers: dict[str, str], raw_body: bytes):
+    try:
+        verify(secret, headers, raw_body)
+    except WebhookVerificationError:
+        return 400, None
+    return 200, json.loads(raw_body)
+```
+
+</CodeGroup>
+
+`verifyWebhook` and `verify` accept a single secret or a list of secrets. The default tolerance is 300 seconds. Pass `toleranceSeconds` (TypeScript) or `tolerance_seconds` (Python) to change it.
+
+## Verify without an SDK
+
+This example reproduces the test vector above. Pass the current time instead of the fixed value in production.
+
+<CodeGroup>
+
+```ts TypeScript
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+function expectedSignature(secret: string, id: string, timestamp: string, rawBody: string) {
+  const key = Buffer.from(secret.replace(/^whsec_/, ""), "base64");
+  const mac = createHmac("sha256", key).update(`${id}.${timestamp}.${rawBody}`).digest("base64");
+  return `v1,${mac}`;
+}
+
+function isValid(
+  secret: string,
+  headers: Record<string, string>,
+  rawBody: string,
+  nowSeconds = Math.floor(Date.now() / 1000),
+) {
+  const id = headers["webhook-id"];
+  const timestamp = headers["webhook-timestamp"];
+  if (!id || !timestamp || Math.abs(nowSeconds - Number(timestamp)) > 300) return false;
+  const expected = Buffer.from(expectedSignature(secret, id, timestamp, rawBody));
+  return headers["webhook-signature"].split(" ").some((candidate) => {
+    const got = Buffer.from(candidate);
+    return got.length === expected.length && timingSafeEqual(got, expected);
+  });
+}
+
+const secret = "whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=";
+const body =
+  '{"id":"msg_0123456789abcdef","type":"call.ended","timestamp":"2026-11-01T12:00:00Z","data":{"call_id":"c1"}}';
+const headers = {
+  "webhook-id": "msg_0123456789abcdef",
+  "webhook-timestamp": "1793534400",
+  "webhook-signature": "v1,49s/QnkINzN3EO848IVtTP/5Tpo+qBtrkQsYjg9+dhs=",
+};
+
+console.log(expectedSignature(secret, headers["webhook-id"], headers["webhook-timestamp"], body));
+console.log(isValid(secret, headers, body, 1793534400));
+```
+
+```python Python
+import base64
+import hashlib
+import hmac
+import time
+
+
+def expected_signature(secret: str, msg_id: str, timestamp: str, raw_body: str) -> str:
+    key = base64.b64decode(secret.removeprefix("whsec_"))
+    signed = f"{msg_id}.{timestamp}.{raw_body}".encode()
+    mac = hmac.new(key, signed, hashlib.sha256).digest()
+    return "v1," + base64.b64encode(mac).decode()
+
+
+def is_valid(secret: str, headers: dict[str, str], raw_body: str, now: float | None = None) -> bool:
+    msg_id = headers.get("webhook-id")
+    timestamp = headers.get("webhook-timestamp")
+    if not msg_id or not timestamp:
+        return False
+    if abs((time.time() if now is None else now) - int(timestamp)) > 300:
+        return False
+    expected = expected_signature(secret, msg_id, timestamp, raw_body)
+    return any(
+        hmac.compare_digest(candidate, expected)
+        for candidate in headers["webhook-signature"].split(" ")
+    )
+
+
+secret = "whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="
+body = '{"id":"msg_0123456789abcdef","type":"call.ended","timestamp":"2026-11-01T12:00:00Z","data":{"call_id":"c1"}}'
+headers = {
+    "webhook-id": "msg_0123456789abcdef",
+    "webhook-timestamp": "1793534400",
+    "webhook-signature": "v1,49s/QnkINzN3EO848IVtTP/5Tpo+qBtrkQsYjg9+dhs=",
+}
+
+print(expected_signature(secret, headers["webhook-id"], headers["webhook-timestamp"], body))
+print(is_valid(secret, headers, body, now=1793534400))
+```
+
+</CodeGroup>
+
+Both examples print `v1,49s/QnkINzN3EO848IVtTP/5Tpo+qBtrkQsYjg9+dhs=` and then `true`.
+
+## Rotate a secret
+
+`POST /v1/webhooks/{id}/rotate-secret` returns a new secret, shown once. For the next 24 hours the old secret stays valid and each delivery carries one signature per secret, so the header has two values. Deploy the new secret to your server during that window.
+
+If you verify with your own code, accept the request when any signature in the header matches. If you use the SDK, pass both secrets as a list until the old one expires.
+
+## Troubleshooting
+
+- **Signature never matches.** You are probably signing a parsed and re-serialized body. Use the raw bytes. In Express, read the body with `express.raw({ type: "application/json" })`.
+- **Timestamp outside tolerance.** Check your server clock.
+- **Works for test events but not live ones.** Confirm you use the secret of the endpoint that received the delivery. Each endpoint has its own secret.

@@ -1,0 +1,253 @@
+---
+title: Event types
+description: Every webhook event type with its payload.
+---
+
+Every event arrives in the same envelope. Only `data` changes. Fields marked optional are left out when they have no value.
+
+```json
+{
+  "id": "msg_0123456789abcdef",
+  "type": "call.ended",
+  "timestamp": "2026-11-01T12:00:00Z",
+  "data": {}
+}
+```
+
+When you create an endpoint, `event_types` lists the types it receives. It needs at least one type.
+
+| Event | Sent when |
+| --- | --- |
+| [`call.ended`](#call-ended) | A call finishes, for any reason. |
+| [`call.analyzed`](#call-analyzed) | The post-call summary and extracted data are ready. |
+| [`call.recording.ready`](#call-recording-ready) | A call recording is stored and available. |
+| [`call.transferred`](#call-transferred) | A call was handed to a person. |
+| [`campaign.started`](#campaign-started) | A campaign started dialing. |
+| [`campaign.paused`](#campaign-paused) | A campaign paused. |
+| [`campaign.contact.completed`](#campaign-contact-completed) | A contact in a campaign reached a final state. |
+| [`campaign.completed`](#campaign-completed) | Every contact in a campaign is done. |
+| [`compliance.opt_out`](#compliance-opt-out) | A person asked not to be called again. |
+| [`billing.balance.low`](#billing-balance-low) | A call was refused or a campaign paused for lack of credit. |
+| [`billing.top_up.succeeded`](#billing-top-up-succeeded) | A top-up added credit. |
+| [`billing.auto_top_up.failed`](#billing-auto-top-up-failed) | An automatic top-up failed. |
+| [`number.provisioned`](#number-provisioned) | An ordered number is ready to use. |
+| [`number.released`](#number-released) | A released number was returned. |
+
+The API also accepts `call.started` and `call.answered` as subscription values. Larynth does not send those two events today, so build on `call.ended` for call results.
+
+## Calls
+
+### call.ended
+
+Sent once per call when it finishes. `status` is the final call status and `cause` is the reason the call ended.
+
+```json
+{
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "direction": "outbound",
+  "status": "completed",
+  "cause": "normal",
+  "answered_at": "2026-11-01T11:57:02Z",
+  "ended_at": "2026-11-01T11:59:41Z",
+  "billable_ms": 159000,
+  "from": "+14155550100",
+  "to": "+14155550123",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `call_id` | The call. Use it with `GET /v1/calls/{call_id}`. |
+| `direction` | `inbound`, `outbound` or `web_test`. |
+| `status` | Final status, for example `completed`, `no_answer`, `busy`, `failed`, `canceled` or `rejected`. |
+| `cause` | Why the call ended. |
+| `answered_at` | Optional. Missing when the call was never answered. |
+| `ended_at` | When the call ended. |
+| `billable_ms` | Billable time in milliseconds. Billing rounds up per started minute and some calls are free. See [billing](/concepts/billing). |
+| `from`, `to` | E.164 numbers. |
+| `assistant_id` | Optional. |
+| `campaign_id` | Optional. Present for campaign calls. |
+
+### call.analyzed
+
+Sent after `call.ended`, once the post-call analysis finishes. Larynth sends it only when post-call analysis ran for the call.
+
+```json
+{
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "summary": "The caller asked to move Tuesday's appointment to Thursday afternoon. Confirmed for 3 pm.",
+  "data": {
+    "new_time": "Thursday 3 pm"
+  },
+  "successful": true,
+  "reason": "The appointment was rescheduled."
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `call_id` | The call. |
+| `assistant_id` | Optional. |
+| `summary` | Plain-language summary of the call. |
+| `data` | The fields you defined for extraction, with the values found. |
+| `successful` | Optional. Whether the call met the success goal, when you set one. |
+| `reason` | Optional. Why `successful` has its value. Present with `successful`. |
+
+You can also read this with `GET /v1/calls/{call_id}/analysis`.
+
+### call.recording.ready
+
+Sent when a recording is stored. Fetch the audio with `GET /v1/recordings/{id}/audio`. Each download is audited.
+
+```json
+{
+  "recording_id": "b6d0f3a2-91c4-4e7e-8d05-5a2c7f1e9b34",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "source": "call",
+  "format": "wav/pcm16/16000/mono+age",
+  "bytes": 5088000,
+  "frames": 2544000
+}
+```
+
+### call.transferred
+
+Sent when the assistant hands a call to a person.
+
+```json
+{
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "direction": "inbound",
+  "destination": "+14155550188",
+  "mode": "warm",
+  "method": "sip_refer",
+  "outcome": "completed",
+  "target": "Front desk",
+  "at": "2026-11-01T11:58:20Z",
+  "sip_code": 200
+}
+```
+
+`sip_code` is optional. The exact values of `mode`, `method` and `outcome` can grow over time, so don't treat them as a closed list.
+
+## Campaigns
+
+### campaign.started
+
+```json
+{ "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12" }
+```
+
+### campaign.paused
+
+`reason` is `user` when someone paused it, `credits_exhausted` when the balance ran out, or another system reason.
+
+```json
+{ "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12", "reason": "user" }
+```
+
+### campaign.contact.completed
+
+Sent when a contact reaches a final state: reached, retries used up, opted out and so on.
+
+```json
+{
+  "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12",
+  "campaign_contact_id": "0d4a7c52-6a1e-4b79-9b40-1c8e2f6d3a77",
+  "contact_id": "7e3b9a10-4d2c-4f85-a6b1-9c0d5e8f2a43",
+  "e164": "+14155550123",
+  "state": "completed",
+  "outcome": "completed",
+  "rule": "",
+  "attempts": 2,
+  "last_call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB"
+}
+```
+
+`rule` is optional and names the compliance rule when a contact was stopped by one.
+
+### campaign.completed
+
+```json
+{
+  "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12",
+  "completed_at": "2026-11-01T18:20:00Z"
+}
+```
+
+## Compliance
+
+### compliance.opt_out
+
+Sent when a revocation is recorded, whether from a call, a campaign or the API. The number is added to your internal do-not-call list.
+
+```json
+{
+  "revocation_id": "5c1f8e29-3b7a-4d60-a2e4-8f9b0c6d1a35",
+  "e164": "+14155550123",
+  "channel": "in_call",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "revoked_at": "2026-11-01T11:58:02Z"
+}
+```
+
+## Billing
+
+### billing.balance.low
+
+Sent when an inbound call was refused because the balance is empty (`reason` is `inbound_call_refused`), or when a campaign paused for lack of credit (`reason` is `credits_exhausted`, with a `campaign_id`).
+
+```json
+{
+  "tenant_id": "c8a1e5d3-7f02-4b96-8e41-2d6a9f0b3c57",
+  "reason": "inbound_call_refused"
+}
+```
+
+### billing.top_up.succeeded
+
+`amount_micro` is the credit added in micro-USD. `kind` is `top_up` for a one-off top-up or `auto_top_up` for an automatic one.
+
+```json
+{
+  "payment_id": "e9d2b7a4-1c85-4f03-b6a8-0d3e7c5f1b92",
+  "amount_micro": 20000000,
+  "kind": "top_up"
+}
+```
+
+### billing.auto_top_up.failed
+
+Automatic top-up is switched off after a failure. Fix the payment method and turn it on again in the dashboard.
+
+```json
+{
+  "payment_id": "e9d2b7a4-1c85-4f03-b6a8-0d3e7c5f1b92",
+  "reason": "payment_declined"
+}
+```
+
+## Numbers
+
+### number.provisioned
+
+```json
+{
+  "number_id": "4b8e1a67-0f3d-4c92-b5a7-6e2d9c1f8a30",
+  "e164": "+14155550100",
+  "country": "US"
+}
+```
+
+### number.released
+
+```json
+{
+  "number_id": "4b8e1a67-0f3d-4c92-b5a7-6e2d9c1f8a30",
+  "e164": "+14155550100",
+  "country": "US"
+}
+```
