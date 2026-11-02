@@ -8,7 +8,7 @@
   "servers": [
     {
       "url": "https://api-us.larynth.com",
-      "description": "US and Canada"
+      "description": "US region"
     }
   ],
   "components": {
@@ -693,6 +693,16 @@
       "Call": {
         "additionalProperties": false,
         "properties": {
+          "agent_billable_ms": {
+            "description": "Part of billable_ms handled by the agent",
+            "format": "int64",
+            "type": "integer"
+          },
+          "agent_price_micro": {
+            "description": "Settled price of the agent part in micro-USD",
+            "format": "int64",
+            "type": "integer"
+          },
           "amd_after_ms": {
             "format": "int64",
             "type": "integer"
@@ -757,6 +767,16 @@
             "type": "string"
           },
           "billable_ms": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "bridged_ms": {
+            "description": "Part of billable_ms bridged to a human after a transfer",
+            "format": "int64",
+            "type": "integer"
+          },
+          "bridged_price_micro": {
+            "description": "Settled price of the bridged part in micro-USD, billed at the transfer_minute rate",
             "format": "int64",
             "type": "integer"
           },
@@ -1095,6 +1115,9 @@
           },
           "id": {
             "format": "uuid",
+            "type": "string"
+          },
+          "informational_category": {
             "type": "string"
           },
           "max_attempts": {
@@ -1883,6 +1906,11 @@
             "format": "date-time",
             "type": "string"
           },
+          "informational_category": {
+            "description": "Informational campaigns only: the category an opt-out on this campaign revokes (FCC 26-67). Empty means an opt-out revokes every call",
+            "pattern": "^[a-z][a-z0-9_]{1,40}$",
+            "type": "string"
+          },
           "max_attempts": {
             "format": "int64",
             "maximum": 10,
@@ -2055,6 +2083,11 @@
       "CreateDNCRequest": {
         "additionalProperties": false,
         "properties": {
+          "category": {
+            "description": "Opt-out scope: telemarketing covers all marketing calls, another value one informational category; empty covers every call",
+            "pattern": "^[a-z][a-z0-9_]{1,40}$",
+            "type": "string"
+          },
           "e164": {
             "pattern": "^\\+[1-9][0-9]{6,14}$",
             "type": "string"
@@ -2090,6 +2123,11 @@
       "CreateRevocationRequest": {
         "additionalProperties": false,
         "properties": {
+          "category": {
+            "description": "Opt-out scope: telemarketing covers all marketing calls, another value one informational category; empty covers every call",
+            "pattern": "^[a-z][a-z0-9_]{1,40}$",
+            "type": "string"
+          },
           "e164": {
             "pattern": "^\\+[1-9][0-9]{6,14}$",
             "type": "string"
@@ -2218,6 +2256,10 @@
         "additionalProperties": false,
         "properties": {
           "call_id": {
+            "type": "string"
+          },
+          "category": {
+            "description": "Opt-out scope; empty covers every call",
             "type": "string"
           },
           "created_at": {
@@ -3453,7 +3495,8 @@
           "kind": {
             "enum": [
               "call_minute",
-              "number_month"
+              "number_month",
+              "transfer_minute"
             ],
             "type": "string"
           },
@@ -3465,7 +3508,7 @@
             "type": "string"
           },
           "price_micro": {
-            "description": "Per minute for call_minute, per month for number_month",
+            "description": "Per minute for call_minute and transfer_minute, per month for number_month",
             "format": "int64",
             "type": "integer"
           }
@@ -3576,6 +3619,10 @@
         "additionalProperties": false,
         "properties": {
           "call_id": {
+            "type": "string"
+          },
+          "category": {
+            "description": "Opt-out scope; empty covers every call",
             "type": "string"
           },
           "channel": {
