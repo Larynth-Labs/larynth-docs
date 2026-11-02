@@ -1,0 +1,8 @@
+* text=auto eol=lf
+*.sh text eol=lf
+*.onnx binary
+*.wav binary
+*.pcm binary
+*.bin binary
+*.png binary
+*.ico binary
