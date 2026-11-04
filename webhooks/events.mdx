@@ -35,6 +35,8 @@ When you create an endpoint, `event_types` lists the types it receives. It needs
 
 The API also accepts `call.started` and `call.answered` as subscription values. Larynth does not send those two events today, so build on `call.ended` for call results.
 
+The API accepts some other values in `event_types` that this page does not describe yet, such as `agent.published`, `number.routing_changed` and `recording.deleted`. Values that start with `notification.` are for dashboard notifications. Subscribe only to the types listed above until their payloads are documented.
+
 ## Calls
 
 ### call.ended

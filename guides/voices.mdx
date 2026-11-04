@@ -1,0 +1,50 @@
+---
+title: "Voices"
+description: "Choose the voice and voice model your agent speaks with."
+---
+
+You choose your agent's voice. Larynth lists the voices and models that work on live calls, and you pick the one that fits your business.
+
+## Browse the catalog
+
+`GET /v1/catalog/voices` lists enabled voices. Filter by `language` or `model_id`. Each voice has a name, a description, the languages it speaks well (the first is its main language), tags, and a `preview_url` where a sample is available.
+
+`GET /v1/catalog/models` lists enabled models. Filter by `kind`: `stt`, `llm`, `tts`, `s2s` or `embedding`. Each model shows `typical_reply_ms`, the typical time it adds to a reply, measured on our own infrastructure. Compare it before you choose, because a slower voice model makes your agent slower to answer.
+
+The agent editor in the dashboard lists the same voices.
+
+## Pick a voice
+
+<Steps>
+  <Step title="Choose the model">
+    In cascade mode, set `tts_model_id` to the voice model. The default voice model is Cartesia Sonic 3.6. It is marked `is_default` in the catalog. You can choose any other enabled model.
+  </Step>
+
+  <Step title="Choose the voice">
+    Set `tts_voice_id` to a voice from the catalog that belongs to that model. Match the voice to the agent's `language`. A draft warns you when they don't match.
+  </Step>
+
+  <Step title="Listen, then test">
+    Play the preview, then make a [test call](/guides/test-in-browser). A voice can sound different over a phone line than in a preview.
+  </Step>
+
+  <Step title="Publish">
+    The voice is part of the version. Publish to make it live. See [Build and publish an agent](/guides/build-and-publish-an-agent).
+  </Step>
+</Steps>
+
+## Cost
+
+Calls cost the same per minute for every voice by default. A voice or model can have a premium. `premium_micro_per_min` in the catalog is added to the call-minute rate, and it equals what billing charges. It is 0 when there is no premium. Amounts are in micro-USD: 1,000,000 equals $1. See [Billing](/concepts/billing).
+
+## Languages
+
+Agents speak English for now. `GET /v1/catalog/languages` lists the call languages that are available, so check it rather than assuming. Your voice must speak the language you pick.
+
+## Speech to speech
+
+In S2S mode one model listens and speaks, so you choose a speech model instead of a separate voice. See [Agents](/concepts/agents#modes).
+
+## Changes to the catalog
+
+The catalog changes as voice models are added or retired. A voice or model with the status `deprecated` is on its way out. Check the catalog when you build a new agent.

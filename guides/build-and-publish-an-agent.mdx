@@ -1,0 +1,51 @@
+---
+title: "Build and publish an agent"
+description: "Create an agent, write its instructions, pick a voice, test it and publish it."
+---
+
+An agent is the instructions, voice and settings behind a phone line. In the API it is an assistant. Read [Agents](/concepts/agents) for how versions work.
+
+<Steps>
+  <Step title="Create the agent">
+    In the dashboard, choose New agent. With the API, call `POST /v1/assistants` with a `name`. A new agent has a draft and no published version yet.
+  </Step>
+
+  <Step title="Write the greeting and instructions">
+    A version needs four things: a `mode`, a `language`, a `system_prompt` and a `greeting_text`. The greeting is the first thing the agent says. Keep it short and say who is answering. See [Write good instructions](/concepts/agents#write-good-instructions).
+  </Step>
+
+  <Step title="Choose the language">
+    Agents speak English for now. `GET /v1/catalog/languages` lists the languages that are available. A language is available only when all of its call texts and opt-out phrases are set up.
+  </Step>
+
+  <Step title="Choose a voice and models">
+    Pick a voice from the catalog. See [Voices](/guides/voices). In cascade mode you also choose the speech-to-text, language and voice models. In S2S mode you choose one speech model. `GET /v1/catalog/models` lists what is enabled.
+  </Step>
+
+  <Step title="Add knowledge, transfer and after-call settings (optional)">
+    Attach [knowledge bases](/concepts/knowledge), set up a [handoff](/concepts/handoff), and choose what the [post-call summary](/concepts/summaries) extracts.
+  </Step>
+
+  <Step title="Save the draft">
+    Edits go to the draft. The dashboard autosaves. With the API, `PUT /v1/assistants/{id}/draft` creates or saves the draft, and `GET /v1/assistants/{id}/draft` returns it with a revision. Send the revision back in `If-Match` so two editors don't overwrite each other. The response can include warnings, for example a voice that doesn't match the language, or a knowledge base that is not ready yet.
+  </Step>
+
+  <Step title="Test it">
+    Talk to the draft in your browser or by phone before any caller reaches it. See [Test calls](/guides/test-in-browser).
+  </Step>
+
+  <Step title="Publish">
+    Publishing makes the draft the live version and makes it immutable. Add a short note to say what changed (up to 200 characters). `POST /v1/assistants/{id}/versions/{v}/publish` publishes a version. Publishing an older version is a rollback. `GET /v1/assistants/{id}/publishes` lists publishes and rollbacks, newest first, and `GET /v1/assistants/{id}/versions/{v}/compare` compares two versions.
+  </Step>
+</Steps>
+
+## After you publish
+
+- Route a number to the agent. See [Get a number](/guides/get-a-number).
+- Pause the agent with `POST /v1/assistants/{id}/pause` and resume it with `.../resume`. Calls in progress finish when you pause.
+- Discard a draft you don't want with `DELETE /v1/assistants/{id}/draft`.
+- Copy an agent with `POST /v1/assistants/{id}/duplicate`.
+
+## Outbound script check
+
+Agents that place calls get a script check when you publish. `GET /v1/assistants/{id}/versions/{v}/script-check` returns its `status`: `pending`, `passed`, `flagged`, `blocked`, `approved` or `rejected`. A flagged script waits for a review by our team, which takes up to 1 business day. Inbound calls keep working while it waits. Outbound campaigns need a script that is not `blocked` or `flagged`. See [Outbound and campaigns](/guides/outbound-and-campaigns).

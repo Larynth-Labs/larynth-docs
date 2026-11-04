@@ -1,0 +1,54 @@
+---
+title: "API keys and scopes"
+description: "Create keys with only the access an integration needs."
+---
+
+An API key lets your software call the Larynth API. Each key carries scopes, so a key can only do what you gave it.
+
+## Create a key
+
+Create keys in the dashboard. The key is shown once, so copy it into a secrets manager or an environment variable straight away. Keys look like `lx_<key_id>_<secret>`.
+
+Send it as a bearer token:
+
+```bash
+curl https://api-us.larynth.com/v1/calls \
+  -H "Authorization: Bearer $LARYNTH_API_KEY"
+```
+
+Never put a key in browser code, a mobile app or a public repository.
+
+## Choose scopes
+
+Give each key the smallest set of scopes it needs. Every endpoint page names the scope it requires.
+
+| Integration | Scopes to start with |
+| - | - |
+| Read call results into a CRM | `calls:read` |
+| Also fetch recordings | `calls:read`, `recordings:read` |
+| Place calls or run campaigns | `calls:write`, `campaigns:write`, `contacts:write`, `compliance:write` |
+| Manage numbers | `numbers:read`, `numbers:write` |
+| Manage webhook endpoints | `webhooks:read`, `webhooks:write` |
+| Show balance in your own tools | `billing:read` |
+
+The full list of scopes is in [Authentication](/api-reference/authentication#scopes).
+
+## Roles still apply
+
+A key acts for the person who owns it. Some operations need a minimum role as well as the scope. For example, creating a webhook endpoint needs the `webhooks:write` scope and an admin role. Outbound calling still needs your account to be [verified](/guides/go-live-and-verification), whatever scopes the key has.
+
+## Errors
+
+| Status | Code | What to do |
+| - | - | - |
+| `401` | `auth.unauthenticated` | The key is missing, malformed or revoked. Check the header. |
+| `403` | `auth.scope_missing` | Create a key with the scope the endpoint needs. |
+| `403` | `auth.forbidden` | The key owner's role doesn't allow this. |
+
+## Rotate and revoke
+
+To rotate a key, create a new one, switch your software to it, then revoke the old one in the dashboard. If a key leaks, revoke it at once.
+
+## Safe retries
+
+Placing calls, starting campaigns, importing contacts and ordering numbers require an `Idempotency-Key` header. A repeat within 24 hours returns the stored response. See [Idempotency](/api-reference/idempotency).
