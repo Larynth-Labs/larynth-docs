@@ -1,0 +1,80 @@
+---
+title: "Get a number"
+description: "Buy a Larynth number, or keep your existing line and forward it."
+---
+
+Your agent answers calls on a phone number. You have two ways to get one.
+
+| Option | Use it when |
+| - | - |
+| Buy a Larynth number | You want a new line for the agent. |
+| Forward your existing number | You want callers to keep dialing the number they know. |
+
+## Buy a number
+
+<Steps>
+  <Step title="Search">
+    In the dashboard, open Numbers and search by area code or city. With the API, call `GET /v1/numbers/available`. Filter by `country`, `area_code`, `city`, `state` and `kind` (`local` or `toll_free`). `GET /v1/area-codes` finds US area codes from a city or code prefix.
+  </Step>
+
+  <Step title="Order">
+    Order up to three numbers at once with `POST /v1/numbers/orders`, or one with `POST /v1/numbers`. The response of an order shows what is due now (the first month of every number) and the monthly total.
+
+    ```bash
+    curl https://api-us.larynth.com/v1/numbers/orders \
+      -H "Authorization: Bearer $LARYNTH_API_KEY" \
+      -H "Idempotency-Key: $(uuidgen)" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "kind": "local",
+        "items": [{"e164": "+14155550100"}],
+        "routing": {"open": {"mode": "assistant", "assistant_id": "'"$ASSISTANT_ID"'"}}
+      }'
+    ```
+
+    Numbers are paid from your balance. Add credit first. See [Billing](/concepts/billing).
+  </Step>
+
+  <Step title="Wait for it to be active">
+    Ordering is asynchronous. The number starts as `ordering` and becomes `active` when it is ready. Subscribe to the `number.provisioned` [webhook](/webhooks/events) if you want to be told.
+  </Step>
+
+  <Step title="Choose who answers">
+    Route the number to a published agent, forward it to another phone, or leave it unanswered. See [Routing](#routing).
+  </Step>
+</Steps>
+
+A number costs $2 per month. Larynth numbers are US and Canadian. Calls on a number are billed as described in [Billing](/concepts/billing).
+
+## Routing
+
+Each number has a routing plan. The simple form is one choice in `route_type`: `assistant`, `forward` or `none`. Change it with `PATCH /v1/numbers/{id}`.
+
+For more control, `PUT /v1/numbers/{id}/routing` replaces the whole plan:
+
+- an open-hours target: an agent, or a forward to another US number;
+- optional business hours with a time zone and holidays;
+- an after-hours target: the same agent, a different agent, a forward, or take a message;
+- a fallback number, `fallback_e164`, where a call goes to a person when the agent can't pick up. That covers a paused agent, an agent that fails to start, and the case where no engine answers. These transfers are not billed.
+
+Send the number's `revision` back in the `If-Match` header, so you don't overwrite a change someone else made.
+
+You can pause an agent with `POST /v1/assistants/{id}/pause`. Calls in progress finish, and new calls go to the forward line if you set one.
+
+## Keep your existing number
+
+Larynth does not port numbers yet. Buy a Larynth number and set your current provider to forward to it. Follow [Forward your number](/guides/forward-your-number).
+
+Forwarded calls are shown on the number as `forward_sources`: the lines Larynth has seen forwarding to it.
+
+## Release a number
+
+`DELETE /v1/numbers/{id}` releases a number. It is asynchronous, and the status moves through `releasing` to `released`.
+
+## Number status
+
+`ordering`, `verifying`, `active`, `suspended`, `releasing`, `released` and `failed`.
+
+<Note>
+  A number that only forwards to another phone, with no agent on the call, is billed per minute at the forwarding rate on the rate card (`GET /v1/billing/rates`). Calls that go to your fallback line because the agent was paused or the service was unreachable are not billed.
+</Note>
