@@ -1,0 +1,119 @@
+---
+title: MCP server
+description: Connect an AI assistant to your Larynth workspace through the hosted Model Context Protocol server. It can do only what your API key's scopes allow.
+---
+
+Larynth hosts a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for your workspace. An AI assistant or agent framework that speaks MCP can use it to read your calls, agents, contacts, numbers, campaigns and balance, and to take a few actions such as pausing an agent or placing a call.
+
+Each tool runs the matching [API](/api-reference/introduction) operation with your API key. The server can do nothing the key can't: the same scopes, compliance checks, balance checks and rate limits apply.
+
+## Server URL
+
+Use the MCP URL of your workspace's region. You find it in the dashboard under **Developers**, on the **Docs** tab.
+
+| Region | URL |
+| --- | --- |
+| United States | `https://api-us.larynth.com/mcp` |
+
+The server uses the Streamable HTTP transport and answers with JSON. It supports MCP protocol versions `2025-11-25`, `2025-06-18` and `2025-03-26`.
+
+## Connect
+
+Create an [API key](/api-reference/authentication) in the dashboard with only the scopes the assistant needs, and send it as a bearer token. Dashboard logins and session cookies are not accepted.
+
+Most MCP clients take a configuration like this. Field names vary between clients, so check yours.
+
+```json
+{
+  "mcpServers": {
+    "larynth": {
+      "type": "http",
+      "url": "https://api-us.larynth.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${LARYNTH_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+Keep the key in an environment variable or your client's secret store. Never paste it into a shared file or a prompt.
+
+To check the connection by hand, start a session and list the tools your key can use:
+
+```bash
+curl -i https://api-us.larynth.com/mcp \
+  -H "Authorization: Bearer $LARYNTH_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
+```
+
+The response carries an `Mcp-Session-Id` header. Send it with every later request:
+
+```bash
+curl https://api-us.larynth.com/mcp \
+  -H "Authorization: Bearer $LARYNTH_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Mcp-Session-Id: $SESSION_ID" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+```
+
+## Tools
+
+`tools/list` returns only the tools your key's scopes allow. A key with `calls:read` alone sees the three call-reading tools and nothing else.
+
+| Tool | What it does | Scope |
+| --- | --- | --- |
+| `list_calls` | List calls with filters, newest first | `calls:read` |
+| `get_call` | Get one call | `calls:read` |
+| `get_call_analysis` | Get a call's summary and extracted data | `calls:read` |
+| `create_call` | Place one outbound call | `calls:write` |
+| `list_agents` | List agents | `assistants:read` |
+| `get_agent` | Get one agent | `assistants:read` |
+| `pause_agent` | Stop an agent answering new calls | `assistants:write` |
+| `resume_agent` | Let a paused agent answer again | `assistants:write` |
+| `list_contacts` | List contacts | `contacts:read` |
+| `get_contact` | Get one contact | `contacts:read` |
+| `create_contact` | Create a contact | `contacts:write` |
+| `list_numbers` | List phone numbers | `numbers:read` |
+| `get_number` | Get one phone number | `numbers:read` |
+| `list_campaigns` | List campaigns | `campaigns:read` |
+| `get_campaign` | Get one campaign | `campaigns:read` |
+| `pause_campaign` | Pause a campaign's dialing | `campaigns:write` |
+| `get_balance` | Prepaid balance | `billing:read` |
+| `get_usage` | Spend by category, agent, day or number | `billing:read` |
+| `get_spend_limits` | Daily cap and monthly budget with today's and this month's spend | `billing:read` |
+
+Each tool's input schema mirrors the parameters and body of its API operation, so the [API reference](/api-reference/introduction) describes every field. The result is the operation's JSON response.
+
+There are no tools for API keys, webhooks, top-ups, bundles or team members. Those stay in the dashboard. The server offers tools only: no resources, prompts or sampling.
+
+## Placing calls
+
+`create_call` needs the `calls:write` scope. It goes through every check an API call goes through: compliance rules, calling windows, caller ID, consent, your balance and your spend limits. A call that fails a check is not placed, and the tool returns the reason.
+
+Use only numbers you have the right to call. See [outbound calls with consent](/guides/outbound-with-consent).
+
+## Idempotency
+
+Tools that change something accept an optional `idempotency_key` argument. It works like the [`Idempotency-Key` header](/api-reference/idempotency): repeating a tool call with the same key within 24 hours returns the first result instead of acting twice.
+
+Without one, the server derives a key from your API key, the MCP session and the JSON-RPC request id. A message that is delivered twice is then applied once. A new request id is a new action.
+
+## Results and errors
+
+A result larger than 256 KB is not returned. The tool reports an error instead; ask again with filters or a smaller `limit`.
+
+When the API refuses a tool call, the tool result is marked as an error and holds the same problem JSON the API returns, with its `code`. For example, a key without the needed scope gets `auth.scope_missing`.
+
+The server itself refuses a request before any tool runs in these cases:
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| `401` | `auth.unauthenticated` | The `Authorization` header is missing or malformed, the key is unknown, expired or revoked, or the request used a session cookie. |
+| `403` | `workspace.test_restricted` | The workspace is a test workspace. The MCP server is not available there. |
+| `429` | `rate_limited` | Too many requests. The same limits as the API apply. |
+
+A request after `initialize` without an `Mcp-Session-Id` header gets `400`.
