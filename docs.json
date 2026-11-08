@@ -249,6 +249,17 @@
         ]
       },
       {
+        "tab": "MCP server",
+        "groups": [
+          {
+            "group": "MCP server",
+            "pages": [
+              "mcp/overview"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Webhooks",
         "groups": [
           {
