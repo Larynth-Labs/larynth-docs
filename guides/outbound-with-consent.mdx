@@ -3,7 +3,7 @@ title: "Outbound with consent"
 description: "Record consent, import contacts and run a campaign through the compliance checks."
 ---
 
-Outbound calling is gated. Your business must be verified and your account topped up with paid credit. Every call also passes the checks in [Compliance](/concepts/compliance).
+Outbound calling is gated. Your account must be verified and topped up with paid credit. Every call also passes the checks in [Compliance](/concepts/compliance). For the full list of gates and preflight, see [Outbound and campaigns](/guides/outbound-and-campaigns).
 
 <Warning>
   Only call people who gave the consent your calls need. Larynth enforces its checks, but you are the caller and the legal responsibility stays with you.
@@ -71,7 +71,8 @@ All examples use fictional 555 numbers.
   <Step title="Start the campaign">
     ```bash
     curl -X POST https://api-us.larynth.com/v1/campaigns/$CAMPAIGN_ID/start \
-      -H "Authorization: Bearer $LARYNTH_API_KEY"
+      -H "Authorization: Bearer $LARYNTH_API_KEY" \
+      -H "Idempotency-Key: $(uuidgen)"
     ```
 
     Each contact is checked before it dials. A contact that fails a check is skipped or held until the check can pass, for example until the calling window opens. Pause with `POST /v1/campaigns/{id}/pause`; active calls continue. Resume with `.../resume`.

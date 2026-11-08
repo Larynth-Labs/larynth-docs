@@ -27,13 +27,15 @@ When you create an endpoint, `event_types` lists the types it receives. It needs
 | [`campaign.contact.completed`](#campaign-contact-completed) | A contact in a campaign reached a final state. |
 | [`campaign.completed`](#campaign-completed) | Every contact in a campaign is done. |
 | [`compliance.opt_out`](#compliance-opt-out) | A person asked not to be called again. |
-| [`billing.balance.low`](#billing-balance-low) | A call was refused or a campaign paused for lack of credit. |
+| [`billing.balance.low`](#billing-balance-low) | Your balance fell below your low-balance threshold, a call was refused or a campaign paused for lack of credit, or a number's rent could not be paid. |
 | [`billing.top_up.succeeded`](#billing-top-up-succeeded) | A top-up added credit. |
-| [`billing.auto_top_up.failed`](#billing-auto-top-up-failed) | An automatic top-up failed. |
+| [`billing.auto_top_up.failed`](#billing-auto-top-up-failed) | Not sent. Auto top-up is off. |
 | [`number.provisioned`](#number-provisioned) | An ordered number is ready to use. |
 | [`number.released`](#number-released) | A released number was returned. |
 
 The API also accepts `call.started` and `call.answered` as subscription values. Larynth does not send those two events today, so build on `call.ended` for call results.
+
+The API accepts some other values in `event_types` that this page does not describe yet, such as `agent.published`, `number.routing_changed` and `recording.deleted`. Values that start with `notification.` are for dashboard notifications. Subscribe only to the types listed above until their payloads are documented.
 
 ## Calls
 
@@ -198,7 +200,12 @@ Sent when a revocation is recorded, whether from a call, a campaign or the API. 
 
 ### billing.balance.low
 
-Sent when an inbound call was refused because the balance is empty (`reason` is `inbound_call_refused`), or when a campaign paused for lack of credit (`reason` is `credits_exhausted`, with a `campaign_id`).
+Sent in these cases. The payload differs for each.
+
+- Your balance fell below your low-balance threshold. The payload has `available_micro` and `threshold_micro`.
+- An inbound call was refused because the balance is empty (`reason` is `inbound_call_refused`).
+- A campaign paused for lack of credit (`reason` is `credits_exhausted`, with a `campaign_id`).
+- A number's monthly rent could not be paid (`reason` is `number_rental`, with `number_id`, `amount_micro` and `release_on`).
 
 ```json
 {
@@ -209,7 +216,7 @@ Sent when an inbound call was refused because the balance is empty (`reason` is 
 
 ### billing.top_up.succeeded
 
-`amount_micro` is the credit added in micro-USD. `kind` is `top_up` for a one-off top-up or `auto_top_up` for an automatic one.
+`amount_micro` is the credit added in micro-USD. `kind` is `top_up` for a top-up made through checkout. Larynth has no automatic top-ups, so you will not see `auto_top_up`.
 
 ```json
 {
@@ -221,14 +228,7 @@ Sent when an inbound call was refused because the balance is empty (`reason` is 
 
 ### billing.auto_top_up.failed
 
-Automatic top-up is switched off after a failure. Fix the payment method and turn it on again in the dashboard.
-
-```json
-{
-  "payment_id": "e9d2b7a4-1c85-4f03-b6a8-0d3e7c5f1b92",
-  "reason": "payment_declined"
-}
-```
+Larynth does not send this event, because auto top-up is off and your card is never charged without you. You can still subscribe to it, but nothing arrives. Top up again through checkout when your balance is low.
 
 ## Numbers
 

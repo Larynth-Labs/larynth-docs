@@ -3,11 +3,11 @@ title: "Phone numbers"
 description: "Order a number, route it to an agent, or forward your existing number."
 ---
 
-A phone number sends inbound calls to an agent, and is the caller ID for outbound calls. Larynth numbers are US and Canadian. A number costs $2 per month.
+A phone number sends inbound calls to an agent, and is the caller ID for outbound calls. Larynth numbers are US and Canadian, local or toll-free. A number costs $2 per month. For the steps, see [Get a number](/guides/get-a-number).
 
 ## Ordering
 
-Search with `GET /v1/numbers/available`, filtering by country and area code. Then order one with `POST /v1/numbers`. Ordering is asynchronous: the number starts as `ordering` and becomes `active` when it is ready.
+Search with `GET /v1/numbers/available`, filtering by country, area code, city, state and kind. Then order with `POST /v1/numbers/orders` (up to three at once) or `POST /v1/numbers`. Ordering is asynchronous: the number starts as `ordering` and becomes `active` when it is ready. The first month is paid from your paid balance, so buying a number needs a paid top-up first.
 
 ## Routing
 
@@ -19,7 +19,7 @@ Each number has one routing choice, set in `route_type`:
 | `forward` | The call is forwarded to `forward_to_e164`. |
 | `none` | Calls are not answered. |
 
-Change routing at any time with `PATCH /v1/numbers/{id}`.
+Change routing at any time with `PATCH /v1/numbers/{id}`. For open hours, holidays, an after-hours target and a fallback line, use `PUT /v1/numbers/{id}/routing`.
 
 ## Keep your existing number
 
@@ -31,7 +31,7 @@ You can keep your current business number and forward calls to a Larynth number.
 
 ## Number status
 
-`ordering`, `active`, `suspended`, `releasing`, `released` and `failed`.
+`ordering`, `verifying`, `active`, `suspended`, `releasing`, `released` and `failed`.
 
 ## Emergency numbers
 

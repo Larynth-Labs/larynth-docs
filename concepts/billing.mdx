@@ -1,6 +1,6 @@
 ---
 title: "Billing"
-description: "How prepaid credit, per-minute pricing and phone numbers are charged."
+description: "How prepaid credit, top-ups, per-minute pricing and phone numbers are charged."
 ---
 
 ## Price
@@ -16,6 +16,7 @@ Calls are billed per started minute. A call of 61 seconds is billed as two minut
 
 - Spam calls that Larynth flags.
 - Calls that last under 10 seconds.
+- Calls to the opt-out line of a marketing campaign.
 - $5 of free credit for new accounts, for browser and inbound test calls.
 
 ## Prepaid credit
@@ -25,20 +26,31 @@ You add credit to your account and calls draw it down.
 - Credit is prepaid and non-refundable, except where the law requires a refund.
 - Credit does not expire.
 - Free credit is spent first.
-- Outbound calling needs business verification and a paid top-up. Free credit cannot be used for outbound calls.
+- Outbound calling needs verification and a paid top-up. Free credit cannot be used for outbound calls. See [Go live and verification](/guides/go-live-and-verification).
+- Buying a phone number needs a paid top-up too. Free credit does not cover number rental.
 
 While a call is in progress, Larynth holds an amount against your balance. When the call ends, the held amount is replaced by the real charge.
 
-When credit runs out, campaigns pause. Turn on auto top-up to add credit when your balance falls below a threshold you choose.
+When credit runs out, campaigns pause and new inbound calls can be refused.
+
+## Add credit
+
+You add credit in the dashboard, on the billing page. Each top-up is a one-time purchase on a secure checkout page. When you finish, you return to the billing page, which shows the result. Tax and receipts are handled at checkout, and each payment keeps a receipt link.
+
+- There is no auto top-up. Larynth never charges your card on its own.
+- The card you pay with is saved for later top-ups, so repeat top-ups take fewer steps.
+- Larynth emails you when your credit falls to $10 and again at $2, and the dashboard shows a banner. Each warning is sent once until you next add credit.
+- Bundles, when on offer, are one-time packs bought the same way. They do not renew by themselves. Bundle credit pays call-minute charges only.
 
 ## See what you were charged
 
 | Endpoint | Returns |
 | - | - |
-| `GET /v1/billing/balance` | Available funds, free credit, the amount held for calls in progress, and your low-balance threshold. |
+| `GET /v1/billing/balance` | Available funds, free credit, bundle credit, the amount held for calls in progress, and your low-balance threshold. |
 | `GET /v1/billing/ledger` | Every charge and top-up, newest first. |
+| `GET /v1/billing/payments` | Your payments, with tax, card and a receipt link. |
 | `GET /v1/billing/rates` | The rates in force. |
-| `GET /v1/billing/auto-top-up` | Your auto top-up settings. |
+| `GET /v1/billing/rate-card` | Your prices, the free rules and any launch price on your workspace. |
 
 Amounts in the API are in micro-USD: 1,000,000 equals $1. A call's final price is `price_micro`, and the minutes billed are in `billable_ms`.
 
@@ -48,4 +60,4 @@ Prepaid credit is non-refundable, except where the law requires it. Ask [support
 
 ## Availability
 
-Billing is in US dollars. Phone numbers are local numbers in the countries your region supports.
+Billing is in US dollars. Larynth phone numbers are US and Canadian, local or toll-free, at the same monthly price.

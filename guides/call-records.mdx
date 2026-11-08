@@ -1,0 +1,55 @@
+---
+title: "Call records"
+description: "Find calls, read transcripts and summaries, and get recordings."
+---
+
+Every call leaves a record, whether it was inbound, outbound or a browser test. Open calls in the dashboard, or read them with the API.
+
+## Find calls
+
+`GET /v1/calls` lists calls, newest first. Filters include `status`, `direction`, `assistant_id`, `number_id`, `campaign_id`, `contact_id`, `since`, `until`, `outcome`, `billed`, `flagged`, `tag`, `sentiment` and `caller_e164`. The `q` filter searches caller name, number digits (3 or more), call id prefix and summary words. Results are paged. See [Pagination](/api-reference/pagination).
+
+`GET /v1/calls/summary` returns totals for the same filters: counts, billed time and spend. Sorting by duration or price needs a time window of at most 90 days.
+
+`GET /v1/live-calls` lists calls in progress.
+
+## Read one call
+
+| Endpoint | Returns |
+| - | - |
+| `GET /v1/calls/{call_id}` | The call: numbers, direction, status, timing, price and outcome. |
+| `GET /v1/calls/{call_id}/turns` | The conversation turn by turn: what the caller said, what the agent said, and timings. |
+| `GET /v1/calls/{call_id}/conversation` | Turns, tool calls, transfers and markers with offsets and reply latency. |
+| `GET /v1/calls/{call_id}/analysis` | The summary and extracted data. See [Summaries and extraction](/concepts/summaries). |
+| `GET /v1/calls/{call_id}/events` | The raw events in order. |
+| `GET /v1/calls/{call_id}/same-caller` | Other calls from the same caller. |
+
+## Transcripts
+
+The transcript is the list of turns. Each turn has `user_text` (the caller) and `agent_text` (the agent, as played, so it is cut short if the caller interrupted). Timing fields show where the time went on that turn.
+
+Transcripts are kept for 1 year by default. You can shorten that. See [Recordings and data](/concepts/recordings-and-data).
+
+## Recordings
+
+Recording is on by default and can be turned off per agent. Callers hear a recording notice on every call.
+
+- `GET /v1/calls/{call_id}/recordings` lists the recordings of a call, with `state` and `retention_until`.
+- `GET /v1/recordings/{id}/audio` streams the audio as WAV. Each access is logged.
+- `GET /v1/recordings/{id}/peaks` returns waveform peaks, for drawing a player.
+
+A recording moves through `pending`, `uploaded` and `verified`, or ends as `failed` or `purged`. Recordings are kept for 90 days by default. A deleted recording shows why: `retention`, `user`, `data_request` or `key_destroyed`.
+
+Recording downloads need the `recordings:read` scope. See [API keys and scopes](/guides/api-keys-and-scopes).
+
+## Get told when a call is ready
+
+You don't need to poll. Use [webhooks](/webhooks/overview):
+
+- `call.ended` when the call finishes;
+- `call.analyzed` when the summary is ready;
+- `call.recording.ready` when the recording is stored.
+
+## What is billed
+
+Calls are billed per started minute. The record shows `billable_ms` and `price_micro`. Spam calls Larynth flags and calls under 10 seconds are free. See [Billing](/concepts/billing).

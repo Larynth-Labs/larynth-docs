@@ -76,6 +76,7 @@ Compliance denials use the code of the rule that blocked the call, which starts 
 | `402` | `billing.insufficient_credit` | Insufficient credit |
 | `402` | `billing.daily_spend_cap` | Daily spend cap reached |
 | `403` | `billing.account_frozen` | Billing account frozen |
+| `409` | `billing.auto_top_up_unavailable` | Auto top-up is not available; top up through checkout |
 | `422` | `billing.payment_method_required` | Saved payment method required |
 | `422` | `billing.top_up_below_minimum` | Top-up amount below minimum |
 | `429` | `billing.api_key_daily_cap` | API key daily hold cap reached |
@@ -99,6 +100,7 @@ Compliance denials use the code of the rule that blocked the call, which starts 
 
 | Status | Code | Title |
 | --- | --- | --- |
+| `402` | `numbers.paid_top_up_required` | Buying a number needs a paid top-up; free credit does not cover rental |
 | `409` | `number.unavailable` | Number unavailable |
 | `422` | `knowledge.file_invalid` | Knowledge file unsupported or unreadable |
 | `422` | `knowledge.url_not_allowed` | Knowledge source address not allowed |

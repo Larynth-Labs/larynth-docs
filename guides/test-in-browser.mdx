@@ -1,15 +1,28 @@
 ---
-title: "Test in the browser"
-description: "Talk to an agent from your browser before it gets a phone number."
+title: "Test calls"
+description: "Talk to an agent from your browser or by phone before real callers reach it."
 ---
+
+Test every agent before you publish it, and again after each change. There are two ways to test.
+
+| Test | Needs a number | Tests |
+| - | - | - |
+| Browser call | No | The latest draft or the published version |
+| Phone call to your number | Yes | The published version, with your real number and routing |
+
+## Browser calls
 
 Browser calls let you try an agent without a phone number. They use your free credit first, then your balance, at the same $0.10 per minute as other calls.
 
-## In the dashboard
-
 Open the agent and start a browser call. Allow microphone access when your browser asks. Speak as a caller would.
 
-You can test the latest draft before you publish it. A draft test never reaches live callers.
+You can test the latest draft before you publish it. A draft test never reaches live callers. Browser calls show as `web_test` calls in your call list.
+
+## Call your number
+
+Once a number is `active` and routed to a published agent, call it from your mobile phone. This checks the whole path: the number, the routing, the audio and the agent. Test calls to your own number are billed like any other inbound call.
+
+Making a test call is one of the steps in the dashboard's "Get your line ready" checklist. See [Go live and verification](/guides/go-live-and-verification).
 
 ## What to check
 
@@ -19,7 +32,7 @@ You can test the latest draft before you publish it. A draft test never reaches 
 - It transfers to a person when it should. See [Handoff](/concepts/handoff).
 - It does not make things up. If it does, tighten the instructions or add the facts to a [knowledge base](/concepts/knowledge).
 
-After the call, open it to read the transcript, the turn timings and the [summary](/concepts/summaries).
+After the call, open it to read the transcript, the turn timings and the [summary](/concepts/summaries). See [Call records](/guides/call-records).
 
 ## If the call does not connect
 

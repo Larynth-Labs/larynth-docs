@@ -71,9 +71,16 @@
           {
             "group": "Guides",
             "pages": [
+              "guides/build-and-publish-an-agent",
+              "guides/voices",
+              "guides/test-in-browser",
+              "guides/get-a-number",
               "guides/forward-your-number",
+              "guides/go-live-and-verification",
+              "guides/outbound-and-campaigns",
               "guides/outbound-with-consent",
-              "guides/test-in-browser"
+              "guides/call-records",
+              "guides/api-keys-and-scopes"
             ]
           },
           {
