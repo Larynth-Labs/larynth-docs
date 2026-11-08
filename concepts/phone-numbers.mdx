@@ -7,7 +7,7 @@ A phone number sends inbound calls to an agent, and is the caller ID for outboun
 
 ## Ordering
 
-Search with `GET /v1/numbers/available`, filtering by country, area code, city, state and kind. Then order with `POST /v1/numbers/orders` (up to three at once) or `POST /v1/numbers`. Ordering is asynchronous: the number starts as `ordering` and becomes `active` when it is ready.
+Search with `GET /v1/numbers/available`, filtering by country, area code, city, state and kind. Then order with `POST /v1/numbers/orders` (up to three at once) or `POST /v1/numbers`. Ordering is asynchronous: the number starts as `ordering` and becomes `active` when it is ready. The first month is paid from your paid balance, so buying a number needs a paid top-up first.
 
 ## Routing
 

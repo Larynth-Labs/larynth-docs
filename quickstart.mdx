@@ -7,7 +7,7 @@ This takes a few minutes. You do not need a phone number to start: you can talk 
 
 <Steps>
   <Step title="Create an account">
-    [Sign up](https://app.larynth.com/signup). Every new account gets $5 of free credit for browser and inbound test calls. Outbound calling needs business verification and a paid top-up.
+    [Sign up](https://app.larynth.com/signup). Every new account gets $5 of free credit for browser and inbound test calls. Outbound calling needs verification and a paid top-up.
   </Step>
 
   <Step title="Create an agent">
@@ -25,7 +25,7 @@ This takes a few minutes. You do not need a phone number to start: you can talk 
   </Step>
 
   <Step title="Add a phone number">
-    Order a US or Canadian number for $2 per month, and point it at your agent. Or keep your current number and forward calls to the new one. See [Phone numbers](/concepts/phone-numbers) and [Forward your number](/guides/forward-your-number).
+    Order a US or Canadian number for $2 per month, and point it at your agent. Buying a number needs a paid top-up, because free credit does not cover rental. Or keep your current number and forward calls to the new one. See [Phone numbers](/concepts/phone-numbers) and [Forward your number](/guides/forward-your-number).
   </Step>
 
   <Step title="Call it">
@@ -76,6 +76,7 @@ curl "https://api-us.larynth.com/v1/numbers/available?country=US&area_code=415&l
 ```bash
 curl https://api-us.larynth.com/v1/numbers \
   -H "Authorization: Bearer $LARYNTH_API_KEY" \
+  -H "Idempotency-Key: $(uuidgen)" \
   -H "Content-Type: application/json" \
   -d '{"e164": "+14155550123", "route_type": "assistant", "assistant_id": "'"$ASSISTANT_ID"'"}'
 ```

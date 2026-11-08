@@ -71,7 +71,8 @@ All examples use fictional 555 numbers.
   <Step title="Start the campaign">
     ```bash
     curl -X POST https://api-us.larynth.com/v1/campaigns/$CAMPAIGN_ID/start \
-      -H "Authorization: Bearer $LARYNTH_API_KEY"
+      -H "Authorization: Bearer $LARYNTH_API_KEY" \
+      -H "Idempotency-Key: $(uuidgen)"
     ```
 
     Each contact is checked before it dials. A contact that fails a check is skipped or held until the check can pass, for example until the calling window opens. Pause with `POST /v1/campaigns/{id}/pause`; active calls continue. Resume with `.../resume`.
