@@ -1,0 +1,121 @@
+---
+title: "Google Voice, VoIP and phone systems"
+description: "What to know before you forward calls from Google Voice, an internet phone service or an office phone system."
+---
+
+Internet phone services and office phone systems forward calls through settings, not dial codes.
+Most work well.
+A few add steps that an agent cannot complete, such as asking the person who answers to press a key.
+This page covers those cases.
+
+## Google Voice
+
+Google states that forwarding calls from a Google Voice number to an automated system is unsupported.
+A Larynth agent is an automated system.
+So forwarding from a personal Google Voice number may not work, and it can stop working without notice.
+
+What this means for you:
+
+- Do not rely on a personal Google Voice number as the only way callers reach your agent.
+- Google points to Google Voice for Google Workspace, which has an auto attendant, for forwarding to automated systems.
+- You can give callers your Larynth number directly.
+- You can forward from a different phone service that supports it.
+
+If you try it anyway, two Google Voice limits apply.
+You can link up to 6 numbers.
+You cannot link a number that is already linked to another Google Voice number.
+
+Also turn off call screening, described below.
+
+## "Press 1 to accept" prompts
+
+Some phone services screen forwarded calls.
+When the forwarded call is answered, the service plays a prompt such as "press 1 to accept this call".
+A person can press 1.
+An agent cannot, so the call never connects and the caller usually ends up in voicemail.
+
+Turn the prompt off for the line you forward.
+
+| Service | Setting | What to do |
+| - | - | - |
+| Google Voice | **Screen Calls** | In Google Voice, open **Settings**, then **Calls**, and turn **Screen Calls** off. |
+| RingCentral | **Incoming call information** | In the Admin Portal, open **My Extension**, then **Settings**, then **Phone**, then **Incoming call information**. Under **Play announcement**, choose **Never**. |
+| Zoom Phone | **Require to press 1 before connecting the call** | In the Zoom web portal, open **Zoom Phone**, then **Settings**. Under **Business Hours** or **Closed Hours**, select **Edit** next to **Call Handling**. Clear the checkbox for the forwarding number. |
+
+Notes:
+
+- RingCentral says to choose **Never** when calls are forwarded to an answering service.
+- Zoom turns this checkbox on by default.
+- Zoom says it cannot be turned off for call queues, so forward from a user's line, not a queue.
+- Menu names change over time, so search your service's help for "call screening" if you cannot find a setting.
+
+If your service is not listed, ask its support whether forwarded calls to an outside number need the answering party to press a key.
+If that cannot be turned off, the service cannot forward to an agent.
+
+## Other internet phone services and office systems
+
+The steps are similar everywhere.
+
+<Steps>
+  <Step title="Open the settings for your business number">
+    Sign in to your phone service.
+    Find **Call forwarding**, **Call handling** or **Call routing**.
+  </Step>
+
+  <Step title="Add your Larynth number as an outside number">
+    Enter the full number, including +1.
+    Choose every call, or only calls nobody answers.
+  </Step>
+
+  <Step title="Check that outside forwarding is allowed">
+    Some services block forwarding to outside numbers until an administrator allows it.
+  </Step>
+
+  <Step title="Save and test">
+    Call your business number from a different phone.
+    The agent should answer.
+  </Step>
+</Steps>
+
+The dashboard has the same steps with your number filled in.
+Open **Phone numbers**, open your number, and next to **Forward your existing number** select **Open**.
+Choose **An internet phone service** or **An office phone system**.
+
+If someone else manages your office phones, send them this page.
+
+## Keep the caller's number
+
+Larynth shows the caller's number when your phone service passes it along.
+Some services replace it with your own business number on forwarded calls.
+Then every call looks like it came from you.
+
+If your service has a caller ID option for forwarded calls, set it to show the caller.
+On RingCentral this is **Incoming caller ID**, in the same **Incoming call information** window.
+
+## Do not transfer back to the number you forward from
+
+Your agent can transfer a caller to a person.
+Do not use the number you forward from as the transfer number.
+
+Here is what happens if you do:
+
+1. A caller dials your business number.
+2. Your phone company forwards the call to your agent.
+3. The agent transfers the call to your business number.
+4. Your phone company forwards it to the agent again.
+
+The caller goes around in a loop and never reaches a person.
+
+Use a different line for transfers, such as a direct mobile number that is not forwarded.
+The same applies to the **Transfer to** number under **If the agent can't pick up** on a number's routing.
+
+When a transfer reaches you, your phone shows your Larynth number, not the caller's.
+You'll hear who's calling and why before you're connected.
+
+See [Handoff to a person](/concepts/handoff) for how transfers work.
+
+## Related
+
+- [Forward your calls: carrier by carrier](/guides/help/forward-by-carrier)
+- [My calls still go to voicemail](/guides/help/calls-go-to-voicemail)
+- [Forward your number](/guides/forward-your-number)

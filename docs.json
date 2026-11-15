@@ -86,6 +86,14 @@
           {
             "group": "Help",
             "pages": [
+              "guides/help/forward-by-carrier",
+              "guides/help/calls-go-to-voicemail",
+              "guides/help/google-voice-and-phone-systems",
+              "guides/help/connect-your-calendar",
+              "guides/help/send-calls-to-a-person",
+              "guides/help/where-summaries-go",
+              "guides/help/your-first-real-calls",
+              "guides/help/before-you-close-or-release",
               "support"
             ]
           }

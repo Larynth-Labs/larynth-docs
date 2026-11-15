@@ -1,0 +1,124 @@
+---
+title: "My calls still go to voicemail"
+description: "Why forwarded calls can land in your old voicemail instead of reaching your agent, and how to fix each cause."
+---
+
+You turned on forwarding, but callers still hear your old voicemail.
+This almost always means the call never left your phone company.
+Work through the checks below in order.
+
+## First, find where the call stops
+
+Call your business number from a different phone.
+Then open **Calls** in the dashboard.
+
+| What you see | What it means |
+| - | - |
+| No new call in **Calls** | The call never reached Larynth. The cause is at your phone company or on your phone. Keep reading. |
+| A new call in **Calls** | Forwarding works. Check which agent answers the number, on the **Phone numbers** page. |
+
+You can also watch the call arrive.
+Open **Phone numbers**, open your number, and next to **Forward your existing number** select **Open**.
+The **Test it.** section shows the call as soon as it reaches us.
+
+## Your phone company's voicemail answers first
+
+If you forward only missed calls, your phone company decides what happens to a call you do not answer.
+It sends the call to voicemail unless missed-call forwarding is set for that exact situation.
+
+Check that each situation is covered:
+
+- **No answer.** You did not pick up.
+- **Busy.** You were on another call.
+- **Phone off or out of signal.** The call could not reach your phone.
+
+On T-Mobile these are three separate codes.
+If you set only "no answer", a call that arrives while the phone is off still goes to voicemail.
+On Verizon wireless one code, `*71`, covers busy and no answer together.
+AT&T does not publish wireless codes for missed calls, so set them in the phone's call settings.
+
+The codes are in [Forward your calls: carrier by carrier](/guides/help/forward-by-carrier).
+
+<Tip>
+  To rule this out quickly, forward all calls for a minute and call again.
+  If the agent answers now, the missed-call settings are the problem.
+</Tip>
+
+## iPhone Live Voicemail
+
+Live Voicemail is voicemail that runs on the iPhone itself.
+If it picks up a missed call before your phone company forwards it, the caller never reaches your agent.
+
+To turn it off:
+
+<Steps>
+  <Step title="Open Settings">
+    On the iPhone, open **Settings**.
+  </Step>
+
+  <Step title="Open the Phone settings">
+    Tap **Apps**, then tap **Phone**.
+  </Step>
+
+  <Step title="Turn it off">
+    Turn off **Live Voicemail**.
+  </Step>
+</Steps>
+
+Also check **Silence Unknown Callers** in the same place.
+Apple says that when it is on, unknown numbers go directly to Live Voicemail without ringing.
+Most new customers are unknown numbers.
+
+## Ring time
+
+A missed call forwards only after your phone has rung for a while.
+If the ring time is long, callers may hang up before the agent answers.
+
+| Phone company | Ring time before a missed call forwards |
+| - | - |
+| T-Mobile | You choose it, from 5 up to 30 seconds. |
+| Verizon wireless | 3 to 6 rings. Verizon does not list a way to change it. |
+| AT&T wireless | "A few rings". AT&T does not list a way to change it. |
+| RingCentral | You choose it with **Ring for** in the call handling settings. |
+| AT&T and Verizon landlines | A preset number of rings, set by the phone company. |
+
+On T-Mobile, dial `**61*1`, your Larynth number, `**`, the seconds, then `#`.
+For example, `**61*14155550100**15#` forwards after 15 seconds.
+
+If you cannot change the ring time and it does not suit you, forward all calls instead.
+
+## Reset and start again
+
+Old forwarding settings can get in the way of new ones.
+Clear them, then set forwarding again from the start.
+
+| Phone company | How to clear |
+| - | - |
+| T-Mobile | Dial `##004#`. T-Mobile describes this as resetting call forwarding to default. |
+| Verizon wireless | Dial `*73`. The confirmation can sound like a busy signal. |
+| AT&T wireless | Dial `#21#` and wait three seconds for the tone. This clears "all calls" forwarding. |
+
+After a reset, missed calls go to your phone company's voicemail again until you set forwarding once more.
+
+## Landlines
+
+On AT&T and Verizon landlines, forwarding turns on only when the confirmation call is answered.
+If your Larynth number did not answer that call, forwarding never started.
+Check that the number is **Active** and a published agent answers it, then dial the code again.
+
+Forwarding for busy or unanswered calls on these landlines is set by the phone company.
+Call them and ask for "call forwarding busy line and don't answer" to your Larynth number.
+
+## Still going to voicemail
+
+Contact [support](/support) and tell us:
+
+- The number you forward from, and your phone company.
+- Whether you forward all calls or only missed calls.
+- The time of a test call that went to voicemail.
+
+## Related
+
+- [Forward your calls: carrier by carrier](/guides/help/forward-by-carrier)
+- [Google Voice, VoIP and phone systems](/guides/help/google-voice-and-phone-systems)
+- [Forward your number](/guides/forward-your-number)

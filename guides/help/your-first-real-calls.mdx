@@ -1,0 +1,85 @@
+---
+title: "Your first real calls: what to check"
+description: "A short routine for the first days after you go live: listen, check summaries, fix answers and confirm your safety nets."
+---
+
+Your first real callers will ask things you did not plan for.
+Spend a few minutes on each of the first calls.
+Most fixes take one edit.
+
+Before real calls, try the agent yourself.
+See [Test calls](/guides/test-in-browser) and [Go live and verification](/guides/go-live-and-verification).
+
+<Steps>
+  <Step title="Listen to the first calls">
+    Open **Calls** and select a call.
+    Play the recording and read the conversation next to it.
+    Check that the agent greeted the caller well, answered correctly and ended the call cleanly.
+    Listen to at least your first three calls.
+  </Step>
+
+  <Step title="Check that the summary arrived">
+    Each answered call gets a summary on the call page, usually within 30 seconds.
+    If you turned on summaries by email, push, Slack or Telegram, check that one arrived too.
+    If it did not, see [Where your call summaries and alerts go](/guides/help/where-summaries-go).
+  </Step>
+
+  <Step title="Fix one wrong answer">
+    When the agent gets a fact wrong or doesn't know it, add the right answer to its knowledge.
+    Go to **Knowledge** and open the knowledge base the agent uses.
+    Choose **Add a source** ▸ **Typed answers**, then select **New answer**.
+    Write the question the way callers ask it, and the answer you want given.
+    Select **Save answers**.
+    Your agents can use the answer in about a minute.
+  </Step>
+
+  <Step title="Answer the questions callers asked">
+    Open the knowledge base and go to **Questions to answer**.
+    It lists questions callers asked that no source could answer.
+    Select **Add an answer** for each one that matters, or **Dismiss** it.
+  </Step>
+
+  <Step title="Rehearse tricky calls">
+    Practice calls let you test the agent against callers you describe, in text, without a phone.
+    Nothing is booked or sent during a practice call.
+    Open the agent, then choose **Practice calls** from the agent menu.
+    Select **Add starter calls**, or **Write your own**, then **Run all**.
+    Run them again after each change.
+  </Step>
+</Steps>
+
+Practice calls don't support flow agents yet.
+For a flow agent, use a test call instead.
+
+## Check your safety nets
+
+<Steps>
+  <Step title="Check that forwarding works">
+    If you forward your existing number to Larynth, prove it once.
+    Go to **Phone numbers**, open the number's menu and choose **Forwarding steps**.
+    Call your business number from another phone.
+    The page shows the call arriving and confirms **Forwarding works**.
+    The **Forwarding works** step on **Go live** turns done after the first forwarded call.
+    For your carrier's settings, see [Forward your calls, carrier by carrier](/guides/help/forward-by-carrier).
+  </Step>
+
+  <Step title="Set a backup number">
+    A backup number catches calls if the agent can't pick up, for example during an outage or while the agent is paused.
+    Open the number in **Phone numbers**.
+    Under **If the agent can't pick up**, turn on **Transfer to a person** and enter the number.
+    Select **Save routing**.
+    Without one, callers hear a short apology and the call ends.
+  </Step>
+</Steps>
+
+## Signs to act on
+
+| You notice | What to do |
+| - | - |
+| The agent says it doesn't know | Add a typed answer, or answer it under **Questions to answer**. |
+| The agent gives an old fact | Edit the typed answer, or update the page or file it came from. |
+| Callers ask for a person | Check your transfer settings. See [Handoff to a person](/concepts/handoff). |
+| Calls show **Not billed** | Short calls and likely spam are free. See [Billing](/concepts/billing). |
+| No calls arrive at all | Check forwarding at your carrier and that the number routes to a published agent. |
+
+Questions about a call? Email [support@larynth.com](mailto:support@larynth.com) with the call ID. See [Support](/support).
