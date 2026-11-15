@@ -19,6 +19,10 @@ Each destination has:
 | `ring_timeout_seconds` | How long to ring the person before returning to the caller. The default is 25. |
 | `whisper` | Warm transfers only: what the agent says to the person before connecting. |
 
+Use a number that doesn't forward back to Larynth, such as a cell.
+Your main line usually forwards to us, so calls sent there would loop.
+Saving your Larynth number or the line that forwards to it is refused.
+
 ## Cold transfer
 
 The caller is handed over directly.
@@ -35,6 +39,7 @@ On phone calls, callers can reach a person without waiting for the agent to deci
 They press 0, or say something like "talk to a person" or "real person".
 The agent says it is connecting them and transfers to your first destination.
 Both are on by default once the agent has a transfer number.
+They need a destination that reaches a person directly, not one that forwards back to Larynth.
 You can turn each off in the agent's call handling settings.
 They work after any notices the agent must play first.
 
