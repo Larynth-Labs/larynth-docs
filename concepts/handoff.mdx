@@ -3,7 +3,8 @@ title: "Handoff to a person"
 description: "Transfer a call to a human, warm or cold."
 ---
 
-An agent can transfer a call to a person. You set this up with a transfer tool on the agent version, listing the destinations the agent may use.
+An agent can transfer a call to a person.
+You set this up with a transfer tool on the agent version, listing the destinations the agent may use.
 
 ## Destinations
 
@@ -20,21 +21,45 @@ Each destination has:
 
 ## Cold transfer
 
-The caller is handed over directly. A `sip_uri` destination works for cold transfers only.
+The caller is handed over directly.
+A `sip_uri` destination works for cold transfers only.
 
 ## Warm transfer
 
-The agent puts the caller on hold, calls the person, briefs them, and then connects the two. In `whisper` you can use the variables `{{summary}}` and `{{destination}}`.
+The agent puts the caller on hold, calls the person, briefs them, and then connects the two.
+In `whisper` you can use the variables `{{summary}}` and `{{destination}}`.
+
+## Press 0 or ask for a person
+
+On phone calls, callers can reach a person without waiting for the agent to decide.
+They press 0, or say something like "talk to a person" or "real person".
+The agent says it is connecting them and transfers to your first destination.
+Both are on by default once the agent has a transfer number.
+You can turn each off in the agent's call handling settings.
+They work after any notices the agent must play first.
+
+## Only during business hours
+
+Turn on **Only during business hours** to stop transfers outside your opening hours.
+Outside those hours, the agent tells the caller nobody is available and takes a message instead.
 
 ## When nobody answers
 
-If the person does not answer, or hangs up during the briefing, the caller returns to the agent. The agent offers to take a message, which goes into the summary.
+If the person does not answer, or hangs up during the briefing, the caller returns to the agent.
+What happens next depends on **If nobody picks up** (`transfer_fallback`):
+
+| Setting | What happens |
+| - | - |
+| Take a message (default) | The agent takes the caller's name, callback number and reason, and reads the number back. The message goes into the summary. |
+| Try the next target | The agent tries your other destinations in order, then takes a message if none answers. |
+| Apologise and end the call | The agent tells the caller nobody is available, says goodbye and ends the call. |
 
 ## Recording after a transfer
 
-Recording continues on both sides after a warm transfer, unless you have turned recording off for the agent. Tell your staff that calls are recorded.
+Recording continues on both sides after a warm transfer, unless you have turned recording off for the agent.
+Tell your staff that calls are recorded.
 
 ## Tips
 
 - Write each destination `description` as a plain rule, such as "billing questions during business hours".
-- Test the transfer from a browser call before you point a number at the agent.
+- Browser test calls can't transfer. To test a transfer, call your number from a phone.
