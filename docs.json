@@ -65,7 +65,6 @@
               "help/test-in-browser",
               "help/get-a-number",
               "help/forward-your-number",
-              "help/go-live-and-verification",
               "help/call-records"
             ]
           },
@@ -81,6 +80,13 @@
               "help/where-summaries-go",
               "help/your-first-real-calls",
               "help/before-you-close-or-release"
+            ]
+          },
+          {
+            "group": "Campaigns",
+            "icon": "megaphone",
+            "pages": [
+              "help/go-live-and-verification"
             ]
           },
           {
@@ -107,7 +113,6 @@
               "concepts/handoff",
               "concepts/summaries",
               "concepts/billing",
-              "concepts/compliance",
               "concepts/recordings-and-data"
             ]
           },
@@ -116,9 +121,16 @@
             "icon": "book-open",
             "pages": [
               "guides/build-and-publish-an-agent",
+              "guides/api-keys-and-scopes"
+            ]
+          },
+          {
+            "group": "Campaigns",
+            "icon": "megaphone",
+            "pages": [
               "guides/outbound-and-campaigns",
               "guides/outbound-with-consent",
-              "guides/api-keys-and-scopes"
+              "concepts/compliance"
             ]
           }
         ]
@@ -237,7 +249,7 @@
             ]
           },
           {
-            "group": "Compliance",
+            "group": "Consent and do-not-call",
             "icon": "shield-check",
             "openapi": {
               "source": "api-reference/openapi.json",
