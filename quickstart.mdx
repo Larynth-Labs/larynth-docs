@@ -172,7 +172,7 @@ Pick the path you want.
         curl https://api-us.larynth.com/v1/assistants/$ASSISTANT_ID/versions \
           -H "Authorization: Bearer $LARYNTH_API_KEY" \
           -H "Content-Type: application/json" \
-          -d '{"mode": "cascade", "language": "en-US", "system_prompt": "You answer calls for a dental clinic. Collect the caller name and reason for calling.", "greeting_text": "Hello, how can I help?", "stt_model_id": "'"$STT_MODEL_ID"'", "llm_model_id": "'"$LLM_MODEL_ID"'", "tts_model_id": "'"$TTS_MODEL_ID"'", "tts_voice_id": "'"$VOICE_ID"'"}'
+          -d '{"mode": "cascade", "language": "en-US", "system_prompt": "You answer calls for a plumbing company. Collect the caller name and reason for calling.", "greeting_text": "Hello, how can I help?", "stt_model_id": "'"$STT_MODEL_ID"'", "llm_model_id": "'"$LLM_MODEL_ID"'", "tts_model_id": "'"$TTS_MODEL_ID"'", "tts_voice_id": "'"$VOICE_ID"'"}'
         ```
 
         ```ts TypeScript
@@ -184,7 +184,7 @@ Pick the path you want.
             mode: "cascade",
             language: "en-US",
             system_prompt:
-              "You answer calls for a dental clinic. Collect the caller name and reason for calling.",
+              "You answer calls for a plumbing company. Collect the caller name and reason for calling.",
             greeting_text: "Hello, how can I help?",
             stt_model_id: process.env.STT_MODEL_ID!,
             llm_model_id: process.env.LLM_MODEL_ID!,
@@ -207,7 +207,7 @@ Pick the path you want.
             body=AssistantVersionSpec(
                 mode="cascade",
                 language="en-US",
-                system_prompt="You answer calls for a dental clinic. Collect the caller name and reason for calling.",
+                system_prompt="You answer calls for a plumbing company. Collect the caller name and reason for calling.",
                 greeting_text="Hello, how can I help?",
                 stt_model_id=uuid.UUID(os.environ["STT_MODEL_ID"]),
                 llm_model_id=uuid.UUID(os.environ["LLM_MODEL_ID"]),

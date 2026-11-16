@@ -42,7 +42,7 @@ Each field has a `name`, a `type`, and optionally a `description`. Types are `st
     "summary_enabled": true,
     "extraction_fields": [
       { "name": "caller_name", "type": "string", "description": "The caller's full name" },
-      { "name": "reason", "type": "enum", "enum": ["new_patient", "reschedule", "billing", "other"], "required": true },
+      { "name": "reason", "type": "enum", "enum": ["new_customer", "reschedule", "billing", "other"], "required": true },
       { "name": "callback_requested", "type": "boolean" }
     ],
     "success_criteria": "The caller's request was recorded and they were told what happens next."
