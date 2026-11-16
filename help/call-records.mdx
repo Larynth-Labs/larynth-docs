@@ -9,6 +9,10 @@ Every call leaves a record, whether it was inbound, outbound or a browser test. 
 
 ## Find calls
 
+<Frame caption="Filter calls by date, agent, line and result.">
+  <img src="/images/guides/call-records-01.png" alt="The Calls filter bar outlined with the Date menu open, showing Any time, Today, Yesterday and more." />
+</Frame>
+
 `GET /v1/calls` lists calls, newest first. Filters include `status`, `direction`, `assistant_id`, `number_id`, `campaign_id`, `contact_id`, `since`, `until`, `outcome`, `billed`, `flagged`, `tag`, `sentiment` and `caller_e164`. The `q` filter searches caller name, number digits (3 or more), call id prefix and summary words. Results are paged. See [Pagination](/api-reference/pagination).
 
 `GET /v1/calls/summary` returns totals for the same filters: counts, billed time and spend. Sorting by duration or price needs a time window of at most 90 days.
@@ -16,6 +20,10 @@ Every call leaves a record, whether it was inbound, outbound or a browser test. 
 `GET /v1/live-calls` lists calls in progress.
 
 ## Read one call
+
+<Frame caption="One call: player, summary, transcript and receipt.">
+  <img src="/images/guides/call-records-02.png" alt="A full call page with the recording player, summary, receipt and conversation outlined as one area." />
+</Frame>
 
 | Endpoint | Returns |
 | - | - |

@@ -104,6 +104,10 @@ Delivery is at least once. The same event can arrive more than once, so make you
 
 ## Inspect and test
 
+<Frame caption="Find failed deliveries and retry them.">
+  <img src="/images/webhooks/overview-01.png" alt="A webhook endpoint's delivery log with a failed 503 delivery outlined, next to its Retry button." />
+</Frame>
+
 - `POST /v1/webhooks/{id}/test` sends a test event to your endpoint. The `data` of a test event is `{"test": true, "message": "This is a test event from Larynth."}`.
 - `GET /v1/webhooks/{id}/deliveries` lists attempts with status, response code, response time and a short excerpt of your response. Filter by `status`.
 - `POST /v1/webhooks/{id}/rotate-secret` issues a new secret. The old secret stays valid for 24 hours, and during that time every delivery carries a signature for each secret. See [verify signatures](/webhooks/verify-signatures#rotate-a-secret).

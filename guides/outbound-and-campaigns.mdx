@@ -27,6 +27,10 @@ Outbound is closed until the account passes these gates. Unverified accounts can
 
 ## Preflight
 
+<Frame caption="Preflight lists what blocks a campaign.">
+  <img src="/images/guides/outbound-and-campaigns-01.png" alt="The Before it can start card for a blocked campaign, with the Business not verified yet row outlined." />
+</Frame>
+
 Check a campaign before you launch it. `POST /v1/campaigns/preflight` checks an unsaved draft, and `GET /v1/campaigns/{id}/preflight` checks a saved campaign. Nothing is written. The result has `can_launch` and a list of checks. Each check has a state of `ok`, `warn`, `stop` or `info`, and often a link to fix it.
 
 Preflight is a forecast. Every dial is checked again when it happens.

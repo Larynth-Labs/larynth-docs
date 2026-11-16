@@ -17,6 +17,10 @@ Your agent answers calls on a phone number. You have two ways to get one.
 <Steps>
   <Step title="Search">
     In the dashboard, open Numbers and search by area code or city. With the API, call `GET /v1/numbers/available`. Filter by `country`, `area_code`, `city`, `state` and `kind` (`local` or `toll_free`). `GET /v1/area-codes` finds US area codes from a city or code prefix.
+
+    <Frame caption="Search by area code.">
+      <img src="/images/guides/get-a-number-01.png" alt="The Get a number page after searching area code 415, listing available numbers with prices." />
+    </Frame>
   </Step>
 
   <Step title="Order">
@@ -43,6 +47,10 @@ Your agent answers calls on a phone number. You have two ways to get one.
 
   <Step title="Choose who answers">
     Route the number to a published agent, forward it to another phone, or leave it unanswered. See [Routing](#routing).
+
+    <Frame caption="Choose who answers during business hours.">
+      <img src="/images/guides/get-a-number-02.png" alt="The Who answers dialog for a number, with the During business hours agent selector outlined." />
+    </Frame>
   </Step>
 </Steps>
 
@@ -74,6 +82,10 @@ Forwarded calls are shown on the number as `forward_sources`: the lines Larynth 
 `DELETE /v1/numbers/{id}` releases a number. It is asynchronous, and the status moves through `releasing` to `released`.
 
 ## Number status
+
+<Frame caption="A working number shows Active.">
+  <img src="/images/guides/get-a-number-03.png" alt="The phone numbers table with the Active status on the first number outlined." />
+</Frame>
 
 `ordering`, `verifying`, `active`, `suspended`, `releasing`, `released` and `failed`.
 
