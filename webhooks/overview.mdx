@@ -7,6 +7,21 @@ keywords: ["webhook", "events", "retries", "delivery", "endpoint"]
 
 A webhook endpoint is an HTTPS URL on your server. Larynth sends a `POST` request to it each time an event you subscribed to happens, for example when a call ends or its post-call summary is ready.
 
+## How delivery works
+
+```mermaid
+sequenceDiagram
+    participant L as Larynth
+    participant S as Your server
+    L->>S: POST event with webhook-id, webhook-timestamp, webhook-signature
+    S->>S: Verify the signature and store the event
+    S-->>L: 2xx within 10 seconds
+    Note over S: Process the event from a queue
+    Note over L,S: No 2xx: retry the same message, up to 9 attempts in total
+    L->>S: Retry after 30 seconds, then 2 minutes, and so on up to 8 hours
+    Note over L: After 50 failed deliveries in a row the endpoint is disabled
+```
+
 ## Set up an endpoint
 
 Create an endpoint in the dashboard or with the API. You choose the URL and the event types to receive.

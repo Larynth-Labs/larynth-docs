@@ -59,6 +59,25 @@ Warm is the default.
 Before a warm introduction, the agent checks that a person answered.
 If it hears a voicemail or another machine, it treats the transfer as unanswered.
 
+```mermaid
+sequenceDiagram
+    participant C as Caller
+    participant A as Agent
+    participant T as Your team member
+    Note over C,T: Warm: introduce the caller first
+    C->>A: Asks for a person
+    A->>C: Puts the caller on hold
+    A->>T: Calls the transfer number
+    T-->>A: A person answers (a machine counts as no answer)
+    A->>T: Says who is calling and why
+    A->>C: Connects the two
+    C->>T: Caller and team member talk
+    Note over C,T: Cold: connect straight away
+    C->>A: Asks for a person
+    A->>T: Hands the call over at once
+    C->>T: Caller and team member talk
+```
+
 ### What your team sees
 
 Your team member's phone shows your business's Larynth number, not the caller's number.
@@ -104,11 +123,34 @@ Open the agent, go to **Call rules**, open **More settings**, and choose **If no
 
 | Option | What happens |
 | - | - |
-| **Take a message and email the team** | The caller comes back to the agent, which takes their name, a callback number and the reason for the call. This is the default. |
-| **Try the next target** | The agent tries your other transfer numbers in turn. |
+| **Take a message** | The caller comes back to the agent, which takes their name, a callback number and the reason for the call. This is the default. |
+| **Try the next target** | The agent tries your other transfer numbers in turn. If none answers, it takes a message. |
 | **Apologise and end the call** | The agent says nobody is available and ends the call. |
 
 The same applies if the line is busy, or if a machine answers a warm transfer.
+
+### Where the message goes
+
+Nothing is emailed because of the transfer itself.
+After the call, the message is in the call summary.
+It also shows up in your **Inbox**, as a message, or as a callback if the caller asked to be called back.
+You get a push notification for a callback by default.
+Email is sent only if you turn it on in **Settings** ▸ **Notifications**.
+See [Where summaries go](/help/where-summaries-go).
+
+```mermaid
+flowchart TD
+    T[Agent rings the transfer number] --> Q{Did a person answer?}
+    Q -->|Yes| C[Caller is connected]
+    Q -->|No answer, busy or a machine| B[Caller comes back to the agent]
+    B --> F{If nobody picks up}
+    F -->|Take a message, the default| M[Agent takes name, callback number and reason]
+    F -->|Try the next target| N[Agent rings your other transfer numbers in turn]
+    N -->|None answers| M
+    F -->|Apologise and end the call| E[Agent says nobody is available and ends the call]
+    M --> SUM[Message goes into the call summary and your Inbox]
+    SUM --> P[Push for a callback by default, email only if you turn it on]
+```
 
 ## Test it
 
@@ -130,6 +172,15 @@ Calls go to the backup number when:
 - the agent can't start because of an error.
 
 Without a backup number, callers hear a short apology and the call ends.
+
+```mermaid
+flowchart TD
+    I[Call arrives at your Larynth number] --> Q{Can the agent answer?}
+    Q -->|Yes| A[Agent answers]
+    Q -->|Paused, removed or failed to start| B{Backup number set, and credit left?}
+    B -->|Yes| P[Call goes to your backup number]
+    B -->|No| S[Caller hears a short apology and the call ends]
+```
 
 To set it, go to **Phone numbers**, open the number, and edit **If the agent can't pick up**.
 Turn on **Transfer to a person**, enter a 10-digit US number in **Transfer to**, and click **Save routing**.

@@ -35,6 +35,25 @@ A `sip_uri` destination works for cold transfers only.
 The agent puts the caller on hold, calls the person, briefs them, and then connects the two.
 In `whisper` you can use the variables `{{summary}}` and `{{destination}}`.
 
+```mermaid
+sequenceDiagram
+    participant C as Caller
+    participant A as Agent
+    participant T as Person
+    Note over C,T: Warm: brief the person first
+    C->>A: Asks for a person
+    A->>C: Puts the caller on hold
+    A->>T: Calls the destination
+    T-->>A: Person answers
+    A->>T: Briefs them with the whisper text
+    A->>C: Connects the two
+    C->>T: Caller and person talk
+    Note over C,T: Cold: hand over directly
+    C->>A: Asks for a person
+    A->>T: Hands the call over
+    C->>T: Caller and person talk
+```
+
 ## Press 0 or ask for a person
 
 On phone calls, callers can reach a person without waiting for the agent to decide.
@@ -57,9 +76,28 @@ What happens next depends on **If nobody picks up** (`transfer_fallback`):
 
 | Setting | What happens |
 | - | - |
-| Take a message (default) | The agent takes the caller's name, callback number and reason, and reads the number back. The message goes into the summary. |
+| Take a message (default) | The agent takes the caller's name, callback number and reason, and reads the number back. |
 | Try the next target | The agent tries your other destinations in order, then takes a message if none answers. |
 | Apologise and end the call | The agent tells the caller nobody is available, says goodbye and ends the call. |
+
+The agent only takes the message in the conversation.
+After the call, the message is in the call summary and in the Inbox, as a `message` item, or a `callback` item if the caller asked to be called back.
+A callback sends the `inbox.callback_waiting` notification, which is push by default.
+Email is sent only if you turn it on in notification settings.
+
+```mermaid
+flowchart TD
+    T[Agent rings the destination] --> Q{Did the person answer?}
+    Q -->|Yes| C[Caller is connected]
+    Q -->|No answer, or hangs up during the briefing| B[Caller returns to the agent]
+    B --> F{transfer_fallback}
+    F -->|Take a message, the default| M[Agent takes name, callback number and reason]
+    M --> SUM[Message goes into the call summary and the Inbox]
+    SUM --> P[Push for a callback by default, email only if turned on]
+    F -->|Try the next target| N[Agent tries your other destinations in order]
+    N -->|None answers| M
+    F -->|Apologise and end the call| E[Agent says nobody is available and ends the call]
+```
 
 ## Recording after a transfer
 

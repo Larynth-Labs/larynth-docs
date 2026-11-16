@@ -17,6 +17,15 @@ An agent has versions. A version is the full set of settings: the greeting, the 
 
 Numbers and campaigns use the published version. Browser test calls can use the latest draft instead, so you can try a change before it reaches callers.
 
+```mermaid
+flowchart LR
+    D[Edit the draft] --> T[Test in the browser]
+    T -->|Sounds wrong| D
+    T -->|Sounds right| P[Publish]
+    P --> L[Numbers and campaigns use this version]
+    L -->|Need a change| D
+```
+
 ## What a version contains
 
 | Setting | What it does |

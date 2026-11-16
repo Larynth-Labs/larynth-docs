@@ -34,148 +34,172 @@ For the general idea, see [Forward your number](/help/forward-your-number).
 Some have separate settings for no answer, busy, and phone off or out of signal.
 Set all three, or some missed calls still go to voicemail.
 
+```mermaid
+flowchart TD
+    C[Caller dials your business number] --> PC[Your phone company]
+    PC --> M{Which forwarding is on?}
+    M -->|Every call| LN[Your Larynth number]
+    M -->|Only missed calls| R[Your phone rings]
+    R -->|You answer| Y[You talk to the caller]
+    R -->|No answer, busy or phone off| LN
+    R -.->|Voicemail picks up first| VM[Phone company voicemail]
+    LN --> A[Your agent answers]
+```
+
 The dashboard uses the same two choices.
 Open **Phone numbers**, open your number, and next to **Forward your existing number** select **Open**.
 Under **What should be forwarded?** pick **Every call** or **Only when I don't answer**.
 The codes shown there are common defaults.
 If your phone company is listed below, use the codes on this page.
 
-## Mobile carriers
+## Find your phone company
 
-Dial each code from the phone whose number you are forwarding, then press call.
+Pick the kind of phone service you have, then open your phone company.
 
-### AT&T wireless
+<Tabs>
+  <Tab title="Mobile">
+    Dial each code from the phone whose number you are forwarding, then press call.
 
-Turn forwarding on in your phone's own call settings.
-To turn forwarding off for all calls, dial `#21#` and press call.
-Wait at least three seconds for the confirmation tone before you hang up.
+    <AccordionGroup>
+      <Accordion title="AT&T wireless">
+        Turn forwarding on in your phone's own call settings.
+        To turn forwarding off for all calls, dial `#21#` and press call.
+        Wait at least three seconds for the confirmation tone before you hang up.
 
-On phones that offer them, the options are **When busy**, **When unanswered** and **When unreachable**.
-AT&T says unanswered calls forward "after a few rings" and does not list a way to change that.
-If your phone does not show these options, ask AT&T to set them.
+        On phones that offer them, the options are **When busy**, **When unanswered** and **When unreachable**.
+        AT&T says unanswered calls forward "after a few rings" and does not list a way to change that.
+        If your phone does not show these options, ask AT&T to set them.
+      </Accordion>
 
-### Verizon wireless
+      <Accordion title="Verizon wireless">
+        | What | Dial |
+        | - | - |
+        | All calls, on | `*72` then the 10-digit number |
+        | Busy or no answer, on | `*71` then the 10-digit number |
+        | Off | `*73` |
 
-| What | Dial |
-| - | - |
-| All calls, on | `*72` then the 10-digit number |
-| Busy or no answer, on | `*71` then the 10-digit number |
-| Off | `*73` |
+        Listen for the beeps and let the call end by itself.
+        The `*71` code covers busy and no answer together.
+        Verizon says unanswered calls forward after 3 to 6 rings and does not list a way to change that.
+        The confirmation for `*73` can sound like a busy signal.
+        You need the phone in hand, or Verizon customer service can set it for you.
+      </Accordion>
 
-Listen for the beeps and let the call end by itself.
-The `*71` code covers busy and no answer together.
-Verizon says unanswered calls forward after 3 to 6 rings and does not list a way to change that.
-The confirmation for `*73` can sound like a busy signal.
-You need the phone in hand, or Verizon customer service can set it for you.
+      <Accordion title="T-Mobile">
+        T-Mobile's codes include a `1` before the number.
 
-### T-Mobile
+        | What | On | Off |
+        | - | - | - |
+        | All calls | `**21*1` then the number, then `#` | `##21#` |
+        | No answer | `**61*1` then the number, then `#` | `##61#` |
+        | Phone off or out of signal | `**62*1` then the number, then `#` | `##62#` |
+        | Busy | `**67*1` then the number, then `#` | `##67#` |
 
-T-Mobile's codes include a `1` before the number.
+        For "only missed calls", set no answer, phone off and busy.
 
-| What | On | Off |
-| - | - | - |
-| All calls | `**21*1` then the number, then `#` | `##21#` |
-| No answer | `**61*1` then the number, then `#` | `##61#` |
-| Phone off or out of signal | `**62*1` then the number, then `#` | `##62#` |
-| Busy | `**67*1` then the number, then `#` | `##67#` |
+        You can choose how long your phone rings before the call forwards.
+        Dial `**61*1`, the number, `**`, the seconds, then `#`.
+        T-Mobile allows 5, 10, 15 and so on, up to 30 seconds.
+        For example, `**61*14155550100**20#` forwards after 20 seconds.
 
-For "only missed calls", set no answer, phone off and busy.
+        To undo everything, dial `##004#`.
+        T-Mobile describes this as resetting call forwarding to default.
+      </Accordion>
 
-You can choose how long your phone rings before the call forwards.
-Dial `**61*1`, the number, `**`, the seconds, then `#`.
-T-Mobile allows 5, 10, 15 and so on, up to 30 seconds.
-For example, `**61*14155550100**20#` forwards after 20 seconds.
+      <Accordion title="US Cellular and other carriers">
+        We could not confirm codes for US Cellular on the carrier's own pages, so we do not list any.
+        The same goes for prepaid brands.
+        Look for **Call forwarding** in the phone's call settings, or ask the carrier for "call forwarding to an outside number".
+      </Accordion>
+    </AccordionGroup>
+  </Tab>
 
-To undo everything, dial `##004#`.
-T-Mobile describes this as resetting call forwarding to default.
+  <Tab title="Business phone service">
+    <AccordionGroup>
+      <Accordion title="Comcast Business">
+        These codes come from Comcast Business guides for its hosted phone systems.
+        Pick up the handset, dial the code, then enter the 10-digit number.
 
-### US Cellular and other carriers
+        | What | On | Off |
+        | - | - | - |
+        | All calls | `*72` | `*73` |
+        | No answer | `*92` | `*93` |
+        | Busy | `*90` | `*91` |
 
-We could not confirm codes for US Cellular on the carrier's own pages, so we do not list any.
-The same goes for prepaid brands.
-Look for **Call forwarding** in the phone's call settings, or ask the carrier for "call forwarding to an outside number".
+        On Business VoiceEdge you can also use the online portal.
+        Open **Feature Settings**, choose **Call Forwarding**, enter the number and switch it **On**.
+        Switch it **Off** there to undo it.
+        Comcast's guide does not say how many rings pass before a no-answer forward.
+        If the codes do not work on your line, ask Comcast Business to turn on call forwarding.
+      </Accordion>
 
-## Business phone services
+      <Accordion title="RingCentral">
+        RingCentral uses settings, not dial codes.
+        You may need permission from your account administrator.
 
-### Comcast Business
+        <Steps>
+          <Step title="Open call handling">
+            In the RingCentral app, go to **Settings**, then **Phone**.
+            Select **Edit** next to **Call handling**.
+          </Step>
 
-These codes come from Comcast Business guides for its hosted phone systems.
-Pick up the handset, dial the code, then enter the 10-digit number.
+          <Step title="Choose what to forward">
+            For all calls, turn on **Forward all calls**, choose **Contact or phone number** and enter your Larynth number.
 
-| What | On | Off |
-| - | - | - |
-| All calls | `*72` | `*73` |
-| No answer | `*92` | `*93` |
-| Busy | `*90` | `*91` |
+            For missed calls only, set **Ring for** to how long your devices should ring.
+            Then under **Missed calls** choose **Forward to external number** and enter your Larynth number.
+          </Step>
 
-On Business VoiceEdge you can also use the online portal.
-Open **Feature Settings**, choose **Call Forwarding**, enter the number and switch it **On**.
-Switch it **Off** there to undo it.
-Comcast's guide does not say how many rings pass before a no-answer forward.
-If the codes do not work on your line, ask Comcast Business to turn on call forwarding.
+          <Step title="Save">
+            Select **Save**.
+          </Step>
+        </Steps>
 
-### RingCentral
+        To undo it, turn **Forward all calls** off, or set **Missed calls** back to **Send to voicemail**.
 
-RingCentral uses settings, not dial codes.
-You may need permission from your account administrator.
+        RingCentral can also play a prompt that asks the person answering to press a key.
+        An agent cannot press keys, so turn that off.
+        See [Google Voice, VoIP and phone systems](/help/google-voice-and-phone-systems).
+      </Accordion>
+    </AccordionGroup>
+  </Tab>
 
-<Steps>
-  <Step title="Open call handling">
-    In the RingCentral app, go to **Settings**, then **Phone**.
-    Select **Edit** next to **Call handling**.
-  </Step>
+  <Tab title="Landline">
+    <AccordionGroup>
+      <Accordion title="AT&T home phone">
+        | What | Dial |
+        | - | - |
+        | All calls, on | `*72` or `72#`, wait for the dial tone, then enter the number |
+        | All calls, off | `*73` or `73#` |
 
-  <Step title="Choose what to forward">
-    For all calls, turn on **Forward all calls**, choose **Contact or phone number** and enter your Larynth number.
+        After the confirmation tone, AT&T calls the number you entered.
+        Forwarding turns on only when that call is answered.
+        If the line is busy or nobody answers, repeat the steps.
+        So set up your agent first, and let it answer.
 
-    For missed calls only, set **Ring for** to how long your devices should ring.
-    Then under **Missed calls** choose **Forward to external number** and enter your Larynth number.
-  </Step>
+        Busy and no-answer forwarding have no dial code on AT&T home phone lines.
+        AT&T asks you to call 800.288.2020 so an agent can set them.
+      </Accordion>
 
-  <Step title="Save">
-    Select **Save**.
-  </Step>
-</Steps>
+      <Accordion title="Verizon home phone">
+        | What | Dial |
+        | - | - |
+        | All calls, on | `*72`, wait for the tone, then dial the number |
+        | All calls, off | `*73` |
 
-To undo it, turn **Forward all calls** off, or set **Missed calls** back to **Send to voicemail**.
+        Forwarding turns on when the call to that number is answered.
+        If it is busy, dial again.
+        You hear two short tones when forwarding is on, and again when you turn it off.
 
-RingCentral can also play a prompt that asks the person answering to press a key.
-An agent cannot press keys, so turn that off.
-See [Google Voice, VoIP and phone systems](/help/google-voice-and-phone-systems).
-
-## Landlines
-
-### AT&T home phone
-
-| What | Dial |
-| - | - |
-| All calls, on | `*72` or `72#`, wait for the dial tone, then enter the number |
-| All calls, off | `*73` or `73#` |
-
-After the confirmation tone, AT&T calls the number you entered.
-Forwarding turns on only when that call is answered.
-If the line is busy or nobody answers, repeat the steps.
-So set up your agent first, and let it answer.
-
-Busy and no-answer forwarding have no dial code on AT&T home phone lines.
-AT&T asks you to call 800.288.2020 so an agent can set them.
-
-### Verizon home phone
-
-| What | Dial |
-| - | - |
-| All calls, on | `*72`, wait for the tone, then dial the number |
-| All calls, off | `*73` |
-
-Forwarding turns on when the call to that number is answered.
-If it is busy, dial again.
-You hear two short tones when forwarding is on, and again when you turn it off.
-
-Busy and no-answer forwarding is a separate Verizon feature.
-In most areas the forwarding number is fixed by Verizon, and changing it needs a service request.
-Where Verizon lets you switch it yourself, `*90` turns it on and `*91` turns it off.
-Calls forward after a preset number of rings.
-Verizon notes that forwarded calls can carry local or toll charges.
+        Busy and no-answer forwarding is a separate Verizon feature.
+        In most areas the forwarding number is fixed by Verizon, and changing it needs a service request.
+        Where Verizon lets you switch it yourself, `*90` turns it on and `*91` turns it off.
+        Calls forward after a preset number of rings.
+        Verizon notes that forwarded calls can carry local or toll charges.
+      </Accordion>
+    </AccordionGroup>
+  </Tab>
+</Tabs>
 
 ## Test it
 

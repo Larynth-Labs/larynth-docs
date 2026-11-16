@@ -14,6 +14,15 @@ Work through the checks below in order.
 Call your business number from a different phone.
 Then open **Calls** in the dashboard.
 
+```mermaid
+flowchart TD
+    S[Call your business number from another phone] --> Q{New call on the Calls page?}
+    Q -->|No| PC[The call never reached Larynth]
+    PC --> V[Check phone company voicemail, Live Voicemail, ring time and old settings]
+    Q -->|Yes| OK[Forwarding works]
+    OK --> AG[Check which agent answers the number]
+```
+
 | What you see | What it means |
 | - | - |
 | No new call in **Calls** | The call never reached Larynth. The cause is at your phone company or on your phone. Keep reading. |
@@ -71,36 +80,50 @@ Also check **Silence Unknown Callers** in the same place.
 Apple says that when it is on, unknown numbers go directly to Live Voicemail without ringing.
 Most new customers are unknown numbers.
 
-## Ring time
+## Ring time and reset
 
 A missed call forwards only after your phone has rung for a while.
 If the ring time is long, callers may hang up before the agent answers.
-
-| Phone company | Ring time before a missed call forwards |
-| - | - |
-| T-Mobile | You choose it, from 5 up to 30 seconds. |
-| Verizon wireless | 3 to 6 rings. Verizon does not list a way to change it. |
-| AT&T wireless | "A few rings". AT&T does not list a way to change it. |
-| RingCentral | You choose it with **Ring for** in the call handling settings. |
-| AT&T and Verizon landlines | A preset number of rings, set by the phone company. |
-
-On T-Mobile, dial `**61*1`, your Larynth number, `**`, the seconds, then `#`.
-For example, `**61*14155550100**15#` forwards after 15 seconds.
-
 If you cannot change the ring time and it does not suit you, forward all calls instead.
 
-## Reset and start again
-
-Old forwarding settings can get in the way of new ones.
-Clear them, then set forwarding again from the start.
-
-| Phone company | How to clear |
-| - | - |
-| T-Mobile | Dial `##004#`. T-Mobile describes this as resetting call forwarding to default. |
-| Verizon wireless | Dial `*73`. The confirmation can sound like a busy signal. |
-| AT&T wireless | Dial `#21#` and wait three seconds for the tone. This clears "all calls" forwarding. |
-
+Old forwarding settings can also get in the way of new ones.
+Open your phone company to see its ring time and how to clear old settings.
 After a reset, missed calls go to your phone company's voicemail again until you set forwarding once more.
+
+<AccordionGroup>
+  <Accordion title="T-Mobile">
+    **Ring time:** you choose it, from 5 up to 30 seconds.
+    Dial `**61*1`, your Larynth number, `**`, the seconds, then `#`.
+    For example, `**61*14155550100**15#` forwards after 15 seconds.
+
+    **Clear:** dial `##004#`.
+    T-Mobile describes this as resetting call forwarding to default.
+  </Accordion>
+
+  <Accordion title="Verizon wireless">
+    **Ring time:** 3 to 6 rings.
+    Verizon does not list a way to change it.
+
+    **Clear:** dial `*73`.
+    The confirmation can sound like a busy signal.
+  </Accordion>
+
+  <Accordion title="AT&T wireless">
+    **Ring time:** "a few rings".
+    AT&T does not list a way to change it.
+
+    **Clear:** dial `#21#` and wait three seconds for the tone.
+    This clears "all calls" forwarding.
+  </Accordion>
+
+  <Accordion title="RingCentral">
+    **Ring time:** you choose it with **Ring for** in the call handling settings.
+  </Accordion>
+
+  <Accordion title="AT&T and Verizon landlines">
+    **Ring time:** a preset number of rings, set by the phone company.
+  </Accordion>
+</AccordionGroup>
 
 ## Landlines
 

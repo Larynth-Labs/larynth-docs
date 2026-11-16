@@ -9,6 +9,21 @@ You do not need to move your business number. Order a Larynth number, then set y
 
 Larynth does not port numbers yet, so forwarding is the way to keep your existing number.
 
+This is the path of a forwarded call.
+The dotted line is the problem [My calls still go to voicemail](/help/calls-go-to-voicemail) fixes.
+
+```mermaid
+flowchart TD
+    C[Caller dials your business number] --> PC[Your phone company]
+    PC --> M{Which forwarding is on?}
+    M -->|Every call| LN[Your Larynth number]
+    M -->|Only missed calls| R[Your phone rings]
+    R -->|You answer| Y[You talk to the caller]
+    R -->|No answer, busy or phone off| LN
+    R -.->|Voicemail picks up first| VM[Phone company voicemail]
+    LN --> A[Your agent answers]
+```
+
 <Steps>
   <Step title="Order a Larynth number">
     Order a US or Canadian number and route it to your published agent. Wait until its status is `active`. See [Get a number](/help/get-a-number).

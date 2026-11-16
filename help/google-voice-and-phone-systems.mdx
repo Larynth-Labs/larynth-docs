@@ -38,18 +38,31 @@ An agent cannot, so the call never connects and the caller usually ends up in vo
 
 Turn the prompt off for the line you forward.
 
-| Service | Setting | What to do |
-| - | - | - |
-| Google Voice | **Screen Calls** | In Google Voice, open **Settings**, then **Calls**, and turn **Screen Calls** off. |
-| RingCentral | **Incoming call information** | In the Admin Portal, open **My Extension**, then **Settings**, then **Phone**, then **Incoming call information**. Under **Play announcement**, choose **Never**. |
-| Zoom Phone | **Require to press 1 before connecting the call** | In the Zoom web portal, open **Zoom Phone**, then **Settings**. Under **Business Hours** or **Closed Hours**, select **Edit** next to **Call Handling**. Clear the checkbox for the forwarding number. |
+<AccordionGroup>
+  <Accordion title="Google Voice">
+    The setting is **Screen Calls**.
+    In Google Voice, open **Settings**, then **Calls**, and turn **Screen Calls** off.
+  </Accordion>
 
-Notes:
+  <Accordion title="RingCentral">
+    The setting is **Incoming call information**.
+    In the Admin Portal, open **My Extension**, then **Settings**, then **Phone**, then **Incoming call information**.
+    Under **Play announcement**, choose **Never**.
+    RingCentral says to choose **Never** when calls are forwarded to an answering service.
+  </Accordion>
 
-- RingCentral says to choose **Never** when calls are forwarded to an answering service.
-- Zoom turns this checkbox on by default.
-- Zoom says it cannot be turned off for call queues, so forward from a user's line, not a queue.
-- Menu names change over time, so search your service's help for "call screening" if you cannot find a setting.
+  <Accordion title="Zoom Phone">
+    The setting is **Require to press 1 before connecting the call**.
+    In the Zoom web portal, open **Zoom Phone**, then **Settings**.
+    Under **Business Hours** or **Closed Hours**, select **Edit** next to **Call Handling**.
+    Clear the checkbox for the forwarding number.
+
+    - Zoom turns this checkbox on by default.
+    - Zoom says it cannot be turned off for call queues, so forward from a user's line, not a queue.
+  </Accordion>
+</AccordionGroup>
+
+Menu names change over time, so search your service's help for "call screening" if you cannot find a setting.
 
 If your service is not listed, ask its support whether forwarded calls to an outside number need the answering party to press a key.
 If that cannot be turned off, the service cannot forward to an agent.
