@@ -17,13 +17,25 @@ Outbound is closed until the account passes these gates. Unverified accounts can
 
 | Gate | What it needs |
 | - | - |
-| Verification | Individual or business verification. See [Go live and verification](/help/go-live-and-verification). |
+| Verification | Individual or business verification. Campaigns need a verified business. See [Go live and verification](/help/go-live-and-verification). |
 | Paid top-up | Paid credit on the account. Free credit can't be used for outbound calls. |
 | Outbound terms | The current outbound terms accepted. |
 | Marketing approval | Only for the `telemarketing` purpose. |
 | Agent published | The campaign's agent has a published version. |
 | Script check | The agent's outbound script check is not `blocked` or `flagged`. |
 | Caller ID | A Larynth number that is active and yours. Imported numbers can't be a caller ID. |
+
+## Who can run campaigns
+
+Every campaign needs a verified business. Identity and business verification must both be approved.
+
+Workspaces on the individual path can't start campaigns.
+
+Informational campaigns are open to verified businesses. These are reminders, confirmations and follow-ups the contact asked for.
+
+Telemarketing needs separate approval. It is not offered at present.
+
+Larynth is not for HIPAA covered entities, such as clinics, dentists and therapists.
 
 ## Preflight
 
@@ -76,6 +88,31 @@ The checks cover the gates above and these:
     `GET /v1/campaigns/{id}/stats` returns the counters, and `GET /v1/campaigns/{id}/events` returns a readable timeline of what happened. Pause with `POST /v1/campaigns/{id}/pause` (calls in progress continue) and resume with `.../resume`.
   </Step>
 </Steps>
+
+## Safeguards on every call
+
+- Calls go out between 8 am and 9 pm in the contact's local time.
+- State rules can narrow those hours. California is 9 am to 9 pm. Indiana is 9 am to 8 pm. Minnesota is 9 am to 9 pm. North Dakota is 8 am to 9 pm.
+- No calls on Sundays or state holidays. The exception is an informational call the contact asked for.
+- At most 3 calls per contact in 24 hours.
+- At most 1 call a day per contact for marketing.
+- A campaign pauses on its own when opt-outs or complaints pass a threshold.
+
+## Consent proof
+
+You may be asked for the consent proof behind an uploaded list. Send it within 5 business days.
+
+For a complaint or traceback, send it within 2 business days.
+
+If proof is not provided, Larynth can suspend your campaigns.
+
+## Paused for readiness
+
+A running campaign pauses itself if the workspace stops meeting the requirements. Its `paused_reason` is `readiness`.
+
+The campaign shows what blocks it. Fix the blocker, then resume.
+
+Resume is refused while the workspace is still blocked.
 
 ## Safety pauses
 

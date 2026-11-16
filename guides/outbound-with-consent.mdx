@@ -5,7 +5,7 @@ sidebarTitle: "Outbound with consent"
 keywords: ["consent", "campaign", "import contacts", "opt out", "outbound"]
 ---
 
-Outbound calling is gated. Your account must be verified and topped up with paid credit. Every call also passes the checks in [Compliance](/concepts/compliance). For the full list of gates and preflight, see [Outbound and campaigns](/guides/outbound-and-campaigns).
+Outbound calling is gated. Your account needs a verified business and paid credit. Every call also passes the checks in [Compliance](/concepts/compliance). For the full list of gates and preflight, see [Outbound and campaigns](/guides/outbound-and-campaigns).
 
 <Warning>
   Only call people who gave the consent your calls need. Larynth enforces its checks, but you are the caller and the legal responsibility stays with you.
@@ -84,6 +84,12 @@ All examples use fictional 555 numbers.
     `GET /v1/campaigns/{id}/stats` returns counters: calls placed, answered, humans, machines and opt-outs. `GET /v1/compliance/decisions` shows why any contact was or was not dialed.
   </Step>
 </Steps>
+
+## Consent proof
+
+Be ready to show where each contact's consent came from. Send the proof within 5 business days of a request.
+
+For a complaint or traceback, send it within 2 business days.
 
 ## When someone asks to stop
 

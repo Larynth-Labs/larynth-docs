@@ -18,7 +18,10 @@ Every outbound call, from a campaign or from `POST /v1/calls`, goes through thes
 | Verified account | The person or business behind the account is verified before it can place outbound calls. Unverified accounts can only receive calls. See [Go live and verification](/help/go-live-and-verification). |
 | Consent on file | The contact needs a consent record: how and when they opted in, and what they agreed to. No record, no call. |
 | Do-Not-Call scrub | The number is checked against your Do-Not-Call list and the Larynth opt-out list. |
-| Calling hours | The contact's state and local time are checked. Outside the allowed window the call waits. |
+| Calling hours | Calls run 8 am to 9 pm in the contact's local time. State rules can narrow this. Outside the window the call waits. |
+| Sundays and holidays | No calls on Sundays or state holidays. Informational calls the contact asked for are the exception. |
+| Frequency | At most 3 calls per contact in 24 hours. Marketing is 1 a day. |
+| Auto-pause | A campaign pauses when opt-outs or complaints pass a threshold. |
 | AI disclosure | The agent says it is an AI assistant at the start of the call and names the business it calls for. |
 | Recording notice | Callers hear a recording notice. |
 
@@ -41,12 +44,20 @@ Record consent with `POST /v1/compliance/consents`. A record needs:
 
 Consent records are kept and cannot be deleted by you.
 
+You must provide the consent proof behind a record within 5 business days of a request. For a complaint or traceback it is 2 business days.
+
 ## Opt-outs and Do-Not-Call
 
 - `POST /v1/compliance/revocations` records that someone withdrew consent. The number is added to your internal Do-Not-Call list.
 - `POST /v1/compliance/dnc` adds a number to your internal list directly.
 - Larynth keeps its own opt-out list, fed by opt-outs on calls, and applies it to every account.
 - The agent can end a call and record an opt-out with the `opt_out` tool.
+
+## Who can run campaigns
+
+Campaigns need a verified business. Informational campaigns are open to verified businesses. Telemarketing is not offered at present.
+
+Larynth is not for HIPAA covered entities, such as clinics, dentists and therapists.
 
 ## What stays with you
 
