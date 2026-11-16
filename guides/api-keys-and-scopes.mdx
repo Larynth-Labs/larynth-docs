@@ -1,6 +1,8 @@
 ---
 title: "API keys and scopes"
 description: "Create keys with only the access an integration needs."
+sidebarTitle: "API keys and scopes"
+keywords: ["api key", "scopes", "bearer", "roles", "rotate"]
 ---
 
 An API key lets your software call the Larynth API. Each key carries scopes, so a key can only do what you gave it.
@@ -35,7 +37,7 @@ The full list of scopes is in [Authentication](/api-reference/authentication#sco
 
 ## Roles still apply
 
-A key acts for the person who owns it. Some operations need a minimum role as well as the scope. For example, creating a webhook endpoint needs the `webhooks:write` scope and an admin role. Outbound calling still needs your account to be [verified](/guides/go-live-and-verification), whatever scopes the key has.
+A key acts for the person who owns it. Some operations need a minimum role as well as the scope. For example, creating a webhook endpoint needs the `webhooks:write` scope and an admin role. Outbound calling still needs your account to be [verified](/help/go-live-and-verification), whatever scopes the key has.
 
 ## Errors
 

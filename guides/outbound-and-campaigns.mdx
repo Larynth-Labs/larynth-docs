@@ -1,6 +1,8 @@
 ---
 title: "Outbound and campaigns"
 description: "How outbound calling opens, the checks every call passes, and how to run a campaign."
+sidebarTitle: "Outbound and campaigns"
+keywords: ["campaign", "outbound", "dialing", "contacts", "schedule"]
 ---
 
 Outbound means your agent places the call. You can place one call with `POST /v1/calls`, or run a campaign that calls a list of contacts inside the hours you set.
@@ -15,7 +17,7 @@ Outbound is closed until the account passes these gates. Unverified accounts can
 
 | Gate | What it needs |
 | - | - |
-| Verification | Individual or business verification. See [Go live and verification](/guides/go-live-and-verification). |
+| Verification | Individual or business verification. See [Go live and verification](/help/go-live-and-verification). |
 | Paid top-up | Paid credit on the account. Free credit can't be used for outbound calls. |
 | Outbound terms | The current outbound terms accepted. |
 | Marketing approval | Only for the `telemarketing` purpose. |
@@ -81,6 +83,6 @@ An opt-out is recorded straight away, the number joins your Do-Not-Call list, an
 
 ## Limits
 
-Outbound limits depend on your verification level. See the table in [Go live and verification](/guides/go-live-and-verification#limits-by-level).
+Outbound limits depend on your verification level. See the table in [Go live and verification](/help/go-live-and-verification#limits-by-level).
 
 Outbound calls to emergency numbers are blocked.

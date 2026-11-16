@@ -1,0 +1,41 @@
+overlay: 1.0.0
+info:
+  title: Playground off for endpoints that spend money or call a phone
+  version: 1.0.0
+extends: api-reference/openapi.json
+actions:
+  - target: "$.paths['/v1/calls'].post"
+    update:
+      x-mint:
+        metadata:
+          playground: none
+  - target: "$.paths['/v1/assistants/{assistant_id}/web-calls'].post"
+    update:
+      x-mint:
+        metadata:
+          playground: none
+  - target: "$.paths['/v1/campaigns/{id}/start'].post"
+    update:
+      x-mint:
+        metadata:
+          playground: none
+  - target: "$.paths['/v1/campaigns/{id}/resume'].post"
+    update:
+      x-mint:
+        metadata:
+          playground: none
+  - target: "$.paths['/v1/numbers'].post"
+    update:
+      x-mint:
+        metadata:
+          playground: none
+  - target: "$.paths['/v1/numbers/orders'].post"
+    update:
+      x-mint:
+        metadata:
+          playground: none
+  - target: "$.paths['/v1/numbers/{id}'].delete"
+    update:
+      x-mint:
+        metadata:
+          playground: none

@@ -45,17 +45,60 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Set up and help",
+        "icon": "life-buoy",
         "groups": [
           {
             "group": "Get started",
+            "icon": "rocket",
             "pages": [
               "index",
+              "help/overview",
               "quickstart"
             ]
           },
           {
+            "group": "Set up your agent",
+            "icon": "settings",
+            "pages": [
+              "help/voices",
+              "help/test-in-browser",
+              "help/get-a-number",
+              "help/forward-your-number",
+              "help/go-live-and-verification",
+              "help/call-records"
+            ]
+          },
+          {
+            "group": "Help articles",
+            "icon": "circle-help",
+            "pages": [
+              "help/forward-by-carrier",
+              "help/calls-go-to-voicemail",
+              "help/google-voice-and-phone-systems",
+              "help/connect-your-calendar",
+              "help/send-calls-to-a-person",
+              "help/where-summaries-go",
+              "help/your-first-real-calls",
+              "help/before-you-close-or-release"
+            ]
+          },
+          {
+            "group": "Contact us",
+            "icon": "life-buoy",
+            "pages": [
+              "help/support"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Developers",
+        "icon": "terminal",
+        "groups": [
+          {
             "group": "Concepts",
+            "icon": "lightbulb",
             "pages": [
               "concepts/agents",
               "concepts/phone-numbers",
@@ -70,40 +113,23 @@
           },
           {
             "group": "Guides",
+            "icon": "book-open",
             "pages": [
               "guides/build-and-publish-an-agent",
-              "guides/voices",
-              "guides/test-in-browser",
-              "guides/get-a-number",
-              "guides/forward-your-number",
-              "guides/go-live-and-verification",
               "guides/outbound-and-campaigns",
               "guides/outbound-with-consent",
-              "guides/call-records",
               "guides/api-keys-and-scopes"
-            ]
-          },
-          {
-            "group": "Help",
-            "pages": [
-              "guides/help/forward-by-carrier",
-              "guides/help/calls-go-to-voicemail",
-              "guides/help/google-voice-and-phone-systems",
-              "guides/help/connect-your-calendar",
-              "guides/help/send-calls-to-a-person",
-              "guides/help/where-summaries-go",
-              "guides/help/your-first-real-calls",
-              "guides/help/before-you-close-or-release",
-              "support"
             ]
           }
         ]
       },
       {
         "tab": "API reference",
+        "icon": "code",
         "groups": [
           {
             "group": "Overview",
+            "icon": "book-open",
             "pages": [
               "api-reference/introduction",
               "api-reference/authentication",
@@ -114,7 +140,13 @@
           },
           {
             "group": "Assistants",
-            "openapi": "api-reference/openapi.json",
+            "icon": "bot",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "GET /v1/assistants",
               "POST /v1/assistants",
@@ -129,7 +161,13 @@
           },
           {
             "group": "Calls",
-            "openapi": "api-reference/openapi.json",
+            "icon": "phone-call",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "POST /v1/assistants/{assistant_id}/web-calls",
               "GET /v1/calls",
@@ -144,7 +182,13 @@
           },
           {
             "group": "Recordings",
-            "openapi": "api-reference/openapi.json",
+            "icon": "audio-lines",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "GET /v1/calls/{call_id}/recordings",
               "GET /v1/recordings/{id}/audio"
@@ -152,7 +196,13 @@
           },
           {
             "group": "Campaigns",
-            "openapi": "api-reference/openapi.json",
+            "icon": "megaphone",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "GET /v1/campaigns",
               "POST /v1/campaigns",
@@ -169,7 +219,13 @@
           },
           {
             "group": "Contacts",
-            "openapi": "api-reference/openapi.json",
+            "icon": "contact",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "GET /v1/contacts",
               "POST /v1/contacts",
@@ -182,7 +238,13 @@
           },
           {
             "group": "Compliance",
-            "openapi": "api-reference/openapi.json",
+            "icon": "shield-check",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "GET /v1/compliance/consents",
               "POST /v1/compliance/consents",
@@ -194,7 +256,13 @@
           },
           {
             "group": "Phone numbers",
-            "openapi": "api-reference/openapi.json",
+            "icon": "phone",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "GET /v1/numbers",
               "POST /v1/numbers",
@@ -206,7 +274,13 @@
           },
           {
             "group": "Knowledge bases",
-            "openapi": "api-reference/openapi.json",
+            "icon": "library",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "GET /v1/knowledge-bases",
               "POST /v1/knowledge-bases",
@@ -224,7 +298,13 @@
           },
           {
             "group": "Billing",
-            "openapi": "api-reference/openapi.json",
+            "icon": "credit-card",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "GET /v1/billing/auto-top-up",
               "GET /v1/billing/balance",
@@ -234,7 +314,13 @@
           },
           {
             "group": "Catalog",
-            "openapi": "api-reference/openapi.json",
+            "icon": "list",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "GET /v1/catalog/models",
               "GET /v1/catalog/voices"
@@ -242,7 +328,13 @@
           },
           {
             "group": "Webhook endpoints",
-            "openapi": "api-reference/openapi.json",
+            "icon": "webhook",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "overlays": [
+                "api-reference/overlays/playground-off.overlay.yaml"
+              ]
+            },
             "pages": [
               "GET /v1/webhooks",
               "POST /v1/webhooks",
@@ -257,21 +349,12 @@
         ]
       },
       {
-        "tab": "MCP server",
-        "groups": [
-          {
-            "group": "MCP server",
-            "pages": [
-              "mcp/overview"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "Webhooks",
+        "icon": "webhook",
         "groups": [
           {
             "group": "Webhooks",
+            "icon": "webhook",
             "pages": [
               "webhooks/overview",
               "webhooks/events",
@@ -282,12 +365,40 @@
       },
       {
         "tab": "SDKs",
+        "icon": "package",
         "groups": [
           {
             "group": "SDKs",
+            "icon": "package",
             "pages": [
               "sdks/typescript",
               "sdks/python"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "MCP server",
+        "icon": "plug",
+        "groups": [
+          {
+            "group": "MCP server",
+            "icon": "plug",
+            "pages": [
+              "mcp/overview"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "icon": "history",
+        "groups": [
+          {
+            "group": "Changelog",
+            "icon": "history",
+            "pages": [
+              "changelog"
             ]
           }
         ]
@@ -295,7 +406,52 @@
     ]
   },
   "footer": {
-    "socials": {}
+    "socials": {},
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          {
+            "label": "Dashboard",
+            "href": "https://app.larynth.com"
+          },
+          {
+            "label": "Changelog",
+            "href": "/changelog"
+          }
+        ]
+      },
+      {
+        "header": "Help",
+        "items": [
+          {
+            "label": "Support",
+            "href": "/help/support"
+          },
+          {
+            "label": "Quickstart",
+            "href": "/quickstart"
+          }
+        ]
+      },
+      {
+        "header": "Company",
+        "items": [
+          {
+            "label": "Larynth",
+            "href": "https://larynth.com"
+          },
+          {
+            "label": "Terms",
+            "href": "https://larynth.com/terms"
+          },
+          {
+            "label": "Privacy",
+            "href": "https://larynth.com/privacy"
+          }
+        ]
+      }
+    ]
   },
   "contextual": {
     "options": [
@@ -304,5 +460,89 @@
       "chatgpt",
       "claude"
     ]
+  },
+  "redirects": [
+    {
+      "source": "/guides/help/forward-by-carrier",
+      "destination": "/help/forward-by-carrier"
+    },
+    {
+      "source": "/guides/help/calls-go-to-voicemail",
+      "destination": "/help/calls-go-to-voicemail"
+    },
+    {
+      "source": "/guides/help/google-voice-and-phone-systems",
+      "destination": "/help/google-voice-and-phone-systems"
+    },
+    {
+      "source": "/guides/help/connect-your-calendar",
+      "destination": "/help/connect-your-calendar"
+    },
+    {
+      "source": "/guides/help/send-calls-to-a-person",
+      "destination": "/help/send-calls-to-a-person"
+    },
+    {
+      "source": "/guides/help/where-summaries-go",
+      "destination": "/help/where-summaries-go"
+    },
+    {
+      "source": "/guides/help/your-first-real-calls",
+      "destination": "/help/your-first-real-calls"
+    },
+    {
+      "source": "/guides/help/before-you-close-or-release",
+      "destination": "/help/before-you-close-or-release"
+    },
+    {
+      "source": "/guides/forward-your-number",
+      "destination": "/help/forward-your-number"
+    },
+    {
+      "source": "/guides/get-a-number",
+      "destination": "/help/get-a-number"
+    },
+    {
+      "source": "/guides/voices",
+      "destination": "/help/voices"
+    },
+    {
+      "source": "/guides/test-in-browser",
+      "destination": "/help/test-in-browser"
+    },
+    {
+      "source": "/guides/call-records",
+      "destination": "/help/call-records"
+    },
+    {
+      "source": "/guides/go-live-and-verification",
+      "destination": "/help/go-live-and-verification"
+    },
+    {
+      "source": "/support",
+      "destination": "/help/support"
+    }
+  ],
+  "api": {
+    "examples": {
+      "languages": [
+        "bash",
+        "typescript",
+        "python"
+      ],
+      "prefill": true
+    },
+    "playground": {
+      "display": "interactive"
+    }
+  },
+  "search": {
+    "prompt": "Search help and API..."
+  },
+  "metadata": {
+    "timestamp": true
+  },
+  "feedback": {
+    "thumbsRating": true
   }
 }
