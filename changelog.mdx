@@ -7,6 +7,15 @@ sidebarTitle: "Changelog"
 keywords: ["changelog", "release notes", "updates", "whats new"]
 ---
 
+<Update label="November 18, 2026" description="Developers" tags={["Developers"]}>
+  ## API reference and webhooks
+
+  The API reference now lists every public endpoint, including alerts, analytics, issues, practice calls and call texts.
+  The webhook pages describe all event types with a sample payload for each.
+  `call.started` and `call.answered` are sent.
+  `GET /v1/inbox` accepts an `assignee` filter, and the spam allow list is paginated.
+</Update>
+
 <Update label="November 15, 2026" description="Product" tags={["Product"]}>
   ## Call alerts
 

@@ -2,7 +2,7 @@
 title: Event types
 description: Every webhook event type with its payload.
 sidebarTitle: "Event types"
-keywords: ["event types", "payload", "call.ended", "webhook events"]
+keywords: ["event types", "payload", "call.ended", "call.started", "webhook events"]
 ---
 
 Every event arrives in the same envelope. Only `data` changes. Fields marked optional are left out when they have no value.
@@ -16,34 +16,140 @@ Every event arrives in the same envelope. Only `data` changes. Fields marked opt
 }
 ```
 
-When you create an endpoint, `event_types` lists the types it receives. It needs at least one type.
+When you create an endpoint, `event_types` lists the types it receives. It needs at least one type. `GET /v1/webhooks/event-types` returns the current list.
+
+Amounts ending in `_micro` are micro-USD, millionths of a dollar. Times are UTC in RFC 3339; `started_at` and `answered_at` on call events carry fractional seconds. The examples use made-up data.
+
+There are 67 event types. 9 of them are never sent today and are marked **Not sent** below. You can subscribe to them, but nothing arrives.
+
+## All events
 
 | Event | Sent when |
 | --- | --- |
-| [`call.ended`](#call-ended) | A call finishes, for any reason. |
-| [`call.analyzed`](#call-analyzed) | The post-call summary and extracted data are ready. |
-| [`call.recording.ready`](#call-recording-ready) | A call recording is stored and available. |
-| [`call.transferred`](#call-transferred) | A call was handed to a person. |
+| [`call.started`](#call-started) | A call is created and begins ringing or connecting. |
+| [`call.answered`](#call-answered) | A call is answered, by the agent on an inbound call or by the person you dialed on an outbound call. |
+| [`call.ended`](#call-ended) | A call finishes, for any reason. Sent once per call. |
+| [`call.analyzed`](#call-analyzed) | The post-call summary and extracted data are ready. Sent after `call.ended`, only when post-call analysis ran. |
+| [`call.recording.ready`](#call-recording-ready) | A call recording is stored and verified. Fetch the audio with `GET /v1/recordings/{id}/audio`. Each download is audited. |
+| [`call.transferred`](#call-transferred) | An agent hands a call to a person. |
+| [`call.flagged`](#call-flagged) | A live call needs attention: the caller asked for a person, or the line has been silent for a long time. |
+| [`call.alert.fired`](#call-alert-fired) | A call alert rule (`GET /v1/alert-rules`) with the `webhook` channel matched a call. |
+| [`call.supervision.started`](#call-supervision-started) | A team member joins a live call to listen or take over. |
+| [`call.supervision.ended`](#call-supervision-ended) | A supervision session ends, after the team member joined. |
+| [`recording.deleted`](#recording-deleted) | A recording is deleted, for example when its retention period ends. |
+| [`caller.blocked`](#caller-blocked) | A caller is added to the blocked list. |
 | [`campaign.started`](#campaign-started) | A campaign started dialing. |
 | [`campaign.paused`](#campaign-paused) | A campaign paused. |
-| [`campaign.contact.completed`](#campaign-contact-completed) | A contact in a campaign reached a final state. |
+| [`campaign.contact.completed`](#campaign-contact-completed) | A contact in a campaign reached a final state: reached, retries used up, opted out and so on. |
 | [`campaign.completed`](#campaign-completed) | Every contact in a campaign is done. |
-| [`compliance.opt_out`](#compliance-opt-out) | A person asked not to be called again. |
-| [`billing.balance.low`](#billing-balance-low) | Your balance fell below your low-balance threshold, a call was refused or a campaign paused for lack of credit, or a number's rent could not be paid. |
+| [`compliance.opt_out`](#compliance-opt-out) | A person asked not to be called again. Sent when a revocation is recorded, whether from a call, a campaign or the API. The number is added to your internal do-not-call list. |
+| [`billing.balance.low`](#billing-balance-low) | Your balance needs attention. The payload differs for each case. |
 | [`billing.top_up.succeeded`](#billing-top-up-succeeded) | A top-up added credit. |
-| [`billing.auto_top_up.failed`](#billing-auto-top-up-failed) | Not sent. Auto top-up is off. |
+| [`billing.auto_top_up.failed`](#billing-auto-top-up-failed) | **Not sent.** An auto top-up failed. |
+| [`billing.spend_limit.alert`](#billing-spend-limit-alert) | Spend reached a threshold of your daily cap or monthly budget. |
+| [`billing.bundle.renewed`](#billing-bundle-renewed) | A bundle pack renewed and its payment succeeded. Sent only when bundle packs are on for your workspace. |
+| [`billing.bundle.renewal_failed`](#billing-bundle-renewal-failed) | A bundle pack renewal payment failed. Sent only when bundle packs are on for your workspace. |
+| [`billing.payment.refunded`](#billing-payment-refunded) | A payment was refunded, in full or in part. |
 | [`number.provisioned`](#number-provisioned) | An ordered number is ready to use. |
 | [`number.released`](#number-released) | A released number was returned. |
-
-The API also accepts `call.started` and `call.answered` as subscription values. Larynth does not send those two events today, so build on `call.ended` for call results.
-
-The API accepts some other values in `event_types` that this page does not describe yet, such as `agent.published`, `number.routing_changed` and `recording.deleted`. Values that start with `notification.` are for dashboard notifications. Subscribe only to the types listed above until their payloads are documented.
+| [`number.routing_changed`](#number-routing-changed) | Who answers a number changed. |
+| [`number.rental_failed`](#number-rental-failed) | A number's monthly rent could not be paid. The number is suspended and released on the date given. |
+| [`agent.published`](#agent-published) | A version of an agent was published or rolled back to. |
+| [`agent.paused`](#agent-paused) | An agent stopped answering new calls. |
+| [`agent.resumed`](#agent-resumed) | A paused agent answers calls again. |
+| [`inbox.item.created`](#inbox-item-created) | A new item needs someone in the inbox, such as a callback request. |
+| [`inbox.item.cleared`](#inbox-item-cleared) | An inbox item was completed or cleared. |
+| [`booking.created`](#booking-created) | An agent made a booking, which may wait for approval. |
+| [`booking.confirmed`](#booking-confirmed) | A booking was confirmed in the calendar. |
+| [`booking.cancelled`](#booking-cancelled) | A booking was cancelled. |
+| [`booking.declined`](#booking-declined) | A booking was declined, or no one approved it in time. |
+| [`booking.failed`](#booking-failed) | A booking could not be made, for example because the slot was taken or the calendar was unavailable. |
+| [`integration.disconnected`](#integration-disconnected) | A calendar or tool lost its connection and needs attention. |
+| [`tool.disabled`](#tool-disabled) | **Not sent.** A tool was switched off. |
+| [`knowledge.gap.created`](#knowledge-gap-created) | Callers asked a question the agent could not answer, and it is new. |
+| [`issue.created`](#issue-created) | Larynth found a new problem with an agent. |
+| [`issue.updated`](#issue-updated) | An issue changed: its status, assignee or count. |
+| [`issue.resolved`](#issue-resolved) | An issue was resolved or ignored. |
+| [`notification.call.summary`](#notification-call-summary) | A call summary is ready and your notification settings send it to webhooks. |
+| [`notification.agent.paused`](#notification-agent-paused) | An agent was paused. |
+| [`notification.alert.missed_calls_spike`](#notification-alert-missed-calls-spike) | Many calls went unanswered in a short time. |
+| [`notification.alert.transfers_failing`](#notification-alert-transfers-failing) | Many transfers to a person failed in a short time. |
+| [`notification.alert.tool_failing`](#notification-alert-tool-failing) | A tool failed many times in a short time. |
+| [`notification.inbox.callback_waiting`](#notification-inbox-callback-waiting) | A caller asked for a callback and the request is waiting. |
+| [`notification.campaign.safeguard_paused`](#notification-campaign-safeguard-paused) | A safety check paused a campaign and it waits for review. |
+| [`notification.campaign.review_decided`](#notification-campaign-review-decided) | A review of a paused campaign was decided. |
+| [`notification.verification.updated`](#notification-verification-updated) | Your business verification status changed. |
+| [`notification.spending_request.created`](#notification-spending-request-created) | A team member asked an admin to approve a spend, such as buying a number or launching a campaign. |
+| [`notification.billing.balance_low`](#notification-billing-balance-low) | Your credit crossed a low-balance level. |
+| [`notification.billing.spend_limit_alert`](#notification-billing-spend-limit-alert) | Spend reached a threshold of a spending limit. |
+| [`notification.billing.bundle_renewed`](#notification-billing-bundle-renewed) | A bundle pack renewed. |
+| [`notification.billing.bundle_renewal_failed`](#notification-billing-bundle-renewal-failed) | A bundle pack renewal failed. |
+| [`notification.billing.payment_refunded`](#notification-billing-payment-refunded) | A payment was refunded. |
+| [`notification.number.rental_failed`](#notification-number-rental-failed) | A number's rent could not be paid. |
+| [`notification.campaign.completed`](#notification-campaign-completed) | **Not sent.** Would report when a campaign finishes. |
+| [`notification.campaign.paused`](#notification-campaign-paused) | **Not sent.** Would report when a campaign pauses. |
+| [`notification.billing.top_up_succeeded`](#notification-billing-top-up-succeeded) | **Not sent.** Would report when a top-up succeeds. |
+| [`notification.billing.auto_top_up_failed`](#notification-billing-auto-top-up-failed) | **Not sent.** Would report when an auto top-up fails. |
+| [`notification.number.provisioned`](#notification-number-provisioned) | **Not sent.** Would report when a number is ready. |
+| [`notification.number.released`](#notification-number-released) | **Not sent.** Would report when a number is released. |
+| [`notification.compliance.optout_alert`](#notification-compliance-optout-alert) | **Not sent.** Would report when a person opts out. |
 
 ## Calls
 
+### call.started
+
+A call is created and begins ringing or connecting.
+
+```json
+{
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "direction": "inbound",
+  "from": "+14155550123",
+  "to": "+14155550100",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "started_at": "2026-11-01T11:57:00.412083Z"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `call_id` | The call. Use it with `GET /v1/calls/{call_id}`. |
+| `direction` | `inbound`, `outbound` or `web_test`. |
+| `from`, `to` | E.164 numbers. |
+| `assistant_id` | Optional. |
+| `campaign_id` | Optional. Present for campaign calls. |
+| `started_at` | When the call began. |
+
+### call.answered
+
+A call is answered, by the agent on an inbound call or by the person you dialed on an outbound call.
+
+```json
+{
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "direction": "outbound",
+  "from": "+14155550100",
+  "to": "+14155550123",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12",
+  "answered_at": "2026-11-01T11:57:02.118764Z"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `call_id` | The call. |
+| `direction` | `inbound`, `outbound` or `web_test`. |
+| `from`, `to` | E.164 numbers. |
+| `assistant_id` | Optional. |
+| `campaign_id` | Optional. Present for campaign calls. |
+| `answered_at` | When the call was answered. |
+
+Calls that are never answered send `call.started` and `call.ended`, but no `call.answered`.
+
 ### call.ended
 
-Sent once per call when it finishes. `status` is the final call status and `cause` is the reason the call ended.
+A call finishes, for any reason. Sent once per call.
 
 ```json
 {
@@ -51,9 +157,10 @@ Sent once per call when it finishes. `status` is the final call status and `caus
   "direction": "outbound",
   "status": "completed",
   "cause": "normal",
-  "answered_at": "2026-11-01T11:57:02Z",
+  "answered_at": "2026-11-01T11:57:02.118764Z",
   "ended_at": "2026-11-01T11:59:41Z",
   "billable_ms": 159000,
+  "bridged_ms": 0,
   "from": "+14155550100",
   "to": "+14155550123",
   "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
@@ -70,13 +177,16 @@ Sent once per call when it finishes. `status` is the final call status and `caus
 | `answered_at` | Optional. Missing when the call was never answered. |
 | `ended_at` | When the call ended. |
 | `billable_ms` | Billable time in milliseconds. Billing rounds up per started minute and some calls are free. See [billing](/concepts/billing). |
+| `bridged_ms` | Time the call spent connected to a person after a transfer, in milliseconds. |
 | `from`, `to` | E.164 numbers. |
 | `assistant_id` | Optional. |
 | `campaign_id` | Optional. Present for campaign calls. |
+| `flow` | Optional. For flow agents: `outcome`, `path` and, when set, `variables`. |
+| `bookings` | Optional. Bookings made on the call, each with `id`, `status` and `start_at`. |
 
 ### call.analyzed
 
-Sent after `call.ended`, once the post-call analysis finishes. Larynth sends it only when post-call analysis ran for the call.
+The post-call summary and extracted data are ready. Sent after `call.ended`, only when post-call analysis ran.
 
 ```json
 {
@@ -104,7 +214,7 @@ You can also read this with `GET /v1/calls/{call_id}/analysis`.
 
 ### call.recording.ready
 
-Sent when a recording is stored. Fetch the audio with `GET /v1/recordings/{id}/audio`. Each download is audited.
+A call recording is stored and verified. Fetch the audio with `GET /v1/recordings/{id}/audio`. Each download is audited.
 
 ```json
 {
@@ -117,9 +227,18 @@ Sent when a recording is stored. Fetch the audio with `GET /v1/recordings/{id}/a
 }
 ```
 
+| Field | Description |
+| --- | --- |
+| `recording_id` | The recording. |
+| `call_id` | The call. |
+| `source` | Which audio the recording holds. |
+| `format` | Audio format. |
+| `bytes` | Stored size in bytes. |
+| `frames` | Number of audio frames. |
+
 ### call.transferred
 
-Sent when the assistant hands a call to a person.
+An agent hands a call to a person.
 
 ```json
 {
@@ -135,27 +254,184 @@ Sent when the assistant hands a call to a person.
 }
 ```
 
-`sip_code` is optional. The exact values of `mode`, `method` and `outcome` can grow over time, so don't treat them as a closed list.
+| Field | Description |
+| --- | --- |
+| `call_id` | The call. |
+| `direction` | `inbound`, `outbound` or `web_test`. |
+| `destination` | E.164 number the call went to. |
+| `mode` | How the hand-off worked, for example `warm`. |
+| `method` | The transfer method. |
+| `outcome` | How the hand-off ended. |
+| `target` | The name you gave the destination. |
+| `at` | When it happened. |
+| `sip_code` | Optional. Final signalling code. |
+
+The values of `mode`, `method` and `outcome` can grow over time, so don't treat them as closed lists.
+
+### call.flagged
+
+A live call needs attention: the caller asked for a person, or the line has been silent for a long time.
+
+```json
+{
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "flag": "human_requested",
+  "at": "2026-11-01T11:58:02Z",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `call_id` | The call. |
+| `flag` | `human_requested` or `long_silence`. |
+| `at` | When the flag was raised. |
+| `assistant_id` | Optional. |
+
+### call.alert.fired
+
+A call alert rule (`GET /v1/alert-rules`) with the `webhook` channel matched a call.
+
+```json
+{
+  "rule_id": "5e0b3c97-4a18-4d6f-b2e5-1c9a7d8f0b36",
+  "rule_name": "Callback wanted",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "trigger": "call_analyzed",
+  "matched": {
+    "field": "callback_requested",
+    "value": true
+  }
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `rule_id` | The alert rule. |
+| `rule_name` | The rule's name. |
+| `call_id` | The call that matched. |
+| `trigger` | `call_analyzed` or `live_turn`. |
+| `matched` | What matched: the `field` and its `value`. Long text is cut to 200 characters. |
+
+### call.supervision.started
+
+A team member joins a live call to listen or take over.
+
+```json
+{
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "supervision_id": "2b7d4f60-8c19-4e35-b5a2-9f0e6c1d3a78",
+  "user_id": "8e3a6c15-9b27-4d41-a0f8-2c5d7e1b9a34",
+  "mode": "listen",
+  "channel": "browser",
+  "at": "2026-11-01T11:58:10Z"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `call_id` | The call. |
+| `supervision_id` | This supervision session. |
+| `user_id` | The team member. |
+| `mode` | `listen` or `takeover`. |
+| `channel` | `browser` or `phone`. |
+| `at` | When they joined. |
+
+### call.supervision.ended
+
+A supervision session ends, after the team member joined.
+
+```json
+{
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "supervision_id": "2b7d4f60-8c19-4e35-b5a2-9f0e6c1d3a78",
+  "user_id": "8e3a6c15-9b27-4d41-a0f8-2c5d7e1b9a34",
+  "mode": "takeover",
+  "channel": "browser",
+  "at": "2026-11-01T11:59:10Z",
+  "handed_back": true,
+  "duration_ms": 60000
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `call_id` | The call. |
+| `supervision_id` | This supervision session. |
+| `user_id` | The team member. |
+| `mode` | `listen` or `takeover`. |
+| `channel` | `browser` or `phone`. |
+| `at` | When the session ended. |
+| `handed_back` | Whether the call went back to the agent. |
+| `duration_ms` | Time from joining to the end, in milliseconds. |
+
+### recording.deleted
+
+A recording is deleted, for example when its retention period ends.
+
+```json
+{
+  "recording_id": "b6d0f3a2-91c4-4e7e-8d05-5a2c7f1e9b34",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `recording_id` | The deleted recording. |
+| `call_id` | The call it belonged to. |
+
+### caller.blocked
+
+A caller is added to the blocked list.
+
+```json
+{
+  "blocked_caller_id": "7c1d5e82-3f09-4b64-a8d7-0e2b9f6c4a51",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `blocked_caller_id` | The blocked-caller entry. Use it with `DELETE /v1/blocked-callers/{id}`. |
+| `call_id` | Optional. The call the block was made from. |
 
 ## Campaigns
 
 ### campaign.started
 
+A campaign started dialing.
+
 ```json
-{ "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12" }
+{
+  "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12"
+}
 ```
+
+| Field | Description |
+| --- | --- |
+| `campaign_id` | The campaign. |
 
 ### campaign.paused
 
-`reason` is `user` when someone paused it, `credits_exhausted` when the balance ran out, or another system reason.
+A campaign paused.
 
 ```json
-{ "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12", "reason": "user" }
+{
+  "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12",
+  "reason": "user"
+}
 ```
+
+| Field | Description |
+| --- | --- |
+| `campaign_id` | The campaign. |
+| `reason` | `user` when someone paused it, `credits_exhausted` when the balance ran out, `compliance` when a safety check paused it, or `operator` when Larynth paused it. |
 
 ### campaign.contact.completed
 
-Sent when a contact reaches a final state: reached, retries used up, opted out and so on.
+A contact in a campaign reached a final state: reached, retries used up, opted out and so on.
 
 ```json
 {
@@ -171,9 +447,21 @@ Sent when a contact reaches a final state: reached, retries used up, opted out a
 }
 ```
 
-`rule` is optional and names the compliance rule when a contact was stopped by one.
+| Field | Description |
+| --- | --- |
+| `campaign_id` | The campaign. |
+| `campaign_contact_id` | The contact's row in this campaign. |
+| `contact_id` | The contact. |
+| `e164` | The number dialed. |
+| `state` | Final state of the contact. |
+| `outcome` | Outcome of the last attempt. |
+| `rule` | Names the compliance rule when one stopped the contact. Empty otherwise. |
+| `attempts` | Calls made to the contact. |
+| `last_call_id` | The last call. |
 
 ### campaign.completed
+
+Every contact in a campaign is done.
 
 ```json
 {
@@ -182,11 +470,16 @@ Sent when a contact reaches a final state: reached, retries used up, opted out a
 }
 ```
 
+| Field | Description |
+| --- | --- |
+| `campaign_id` | The campaign. |
+| `completed_at` | When the campaign finished. |
+
 ## Compliance
 
 ### compliance.opt_out
 
-Sent when a revocation is recorded, whether from a call, a campaign or the API. The number is added to your internal do-not-call list.
+A person asked not to be called again. Sent when a revocation is recorded, whether from a call, a campaign or the API. The number is added to your internal do-not-call list.
 
 ```json
 {
@@ -194,20 +487,27 @@ Sent when a revocation is recorded, whether from a call, a campaign or the API. 
   "e164": "+14155550123",
   "channel": "in_call",
   "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
-  "revoked_at": "2026-11-01T11:58:02Z"
+  "revoked_at": "2026-11-01T11:58:02Z",
+  "category": "",
+  "scope": "all"
 }
 ```
+
+| Field | Description |
+| --- | --- |
+| `revocation_id` | The revocation. |
+| `e164` | The number. |
+| `channel` | Where the opt-out came from, for example `in_call`. |
+| `call_id` | The call, when there was one. |
+| `revoked_at` | When it was recorded. |
+| `category` | The kind of calls the person opted out of. Empty means all. |
+| `scope` | `all`, `telemarketing` or `informational:<category>`. |
 
 ## Billing
 
 ### billing.balance.low
 
-Sent in these cases. The payload differs for each.
-
-- Your balance fell below your low-balance threshold. The payload has `available_micro` and `threshold_micro`.
-- An inbound call was refused because the balance is empty (`reason` is `inbound_call_refused`).
-- A campaign paused for lack of credit (`reason` is `credits_exhausted`, with a `campaign_id`).
-- A number's monthly rent could not be paid (`reason` is `number_rental`, with `number_id`, `amount_micro` and `release_on`).
+Your balance needs attention. The payload differs for each case.
 
 ```json
 {
@@ -216,9 +516,16 @@ Sent in these cases. The payload differs for each.
 }
 ```
 
+| Field | Description |
+| --- | --- |
+| `available_micro`, `threshold_micro` | When the balance fell below your low-balance threshold. |
+| `reason` | `inbound_call_refused` when a call was refused because the balance is empty, `credits_exhausted` when a campaign paused for lack of credit (with `campaign_id`), or `number_rental` when a number's rent could not be paid (with `number_id`, `amount_micro` and `release_on`). |
+
+Amounts are in micro-USD, millionths of a dollar.
+
 ### billing.top_up.succeeded
 
-`amount_micro` is the credit added in micro-USD. `kind` is `top_up` for a top-up made through checkout. Larynth has no automatic top-ups, so you will not see `auto_top_up`.
+A top-up added credit.
 
 ```json
 {
@@ -228,14 +535,122 @@ Sent in these cases. The payload differs for each.
 }
 ```
 
+| Field | Description |
+| --- | --- |
+| `payment_id` | The payment. |
+| `amount_micro` | Credit added, in micro-USD. |
+| `kind` | `top_up` for a top-up made through checkout. |
+
 ### billing.auto_top_up.failed
 
-Larynth does not send this event, because auto top-up is off and your card is never charged without you. You can still subscribe to it, but nothing arrives. Top up again through checkout when your balance is low.
+An auto top-up failed.
+
+Larynth does not send this event. Auto top-up is off and your card is never charged without you. Top up through checkout when your balance is low.
+
+### billing.spend_limit.alert
+
+Spend reached a threshold of your daily cap or monthly budget.
+
+```json
+{
+  "period": "monthly",
+  "threshold_pct": 80,
+  "cap_micro": 500000000,
+  "used_micro": 401250000,
+  "stop_inbound": false
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `period` | `daily` or `monthly`. |
+| `threshold_pct` | The threshold that was crossed, as a percent of the cap. |
+| `cap_micro` | The cap, in micro-USD. |
+| `used_micro` | Spend so far in the period, in micro-USD. |
+| `stop_inbound` | Whether reaching the cap also stops inbound calls. |
+
+### billing.bundle.renewed
+
+A bundle pack renewed and its payment succeeded. Sent only when bundle packs are on for your workspace.
+
+```json
+{
+  "subscription_id": "d3a8f1c6-0b94-4e27-a5d1-6c7e2b9f0a48",
+  "payment_id": "e9d2b7a4-1c85-4f03-b6a8-0d3e7c5f1b92",
+  "bundle_key": "starter",
+  "price_micro": 49000000,
+  "amount_micro": 49000000,
+  "credit_micro": 60000000,
+  "period_start": "2026-11-01T00:00:00Z",
+  "receipt_url": "https://example.com/receipts/rcpt_0123"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `subscription_id` | The bundle subscription. |
+| `payment_id` | The payment. |
+| `bundle_key` | Which bundle pack. |
+| `price_micro`, `amount_micro` | Amount charged, in micro-USD. |
+| `credit_micro` | Credit added, in micro-USD. |
+| `period_start` | Start of the new period. |
+| `receipt_url` | Link to the receipt. |
+
+### billing.bundle.renewal_failed
+
+A bundle pack renewal payment failed. Sent only when bundle packs are on for your workspace.
+
+```json
+{
+  "subscription_id": "d3a8f1c6-0b94-4e27-a5d1-6c7e2b9f0a48",
+  "bundle_key": "starter",
+  "amount_micro": 49000000,
+  "reason": "card_declined",
+  "retry_at": "2026-11-04T00:00:00Z"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `subscription_id` | The bundle subscription. |
+| `bundle_key` | Which bundle pack. |
+| `amount_micro` | Amount due, in micro-USD. |
+| `reason` | Why the payment failed. |
+| `retry_at` | Optional. When Larynth tries again. Missing when the bundle ends. |
+
+### billing.payment.refunded
+
+A payment was refunded, in full or in part.
+
+```json
+{
+  "payment_id": "e9d2b7a4-1c85-4f03-b6a8-0d3e7c5f1b92",
+  "kind": "top_up",
+  "refunded_micro": 5000000,
+  "total_refunded_micro": 5000000,
+  "card_brand": "visa",
+  "card_last4": "4242",
+  "at": "2026-11-02T09:00:00Z",
+  "refund_id": "re_0123456789"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `payment_id` | The payment. |
+| `kind` | The kind of payment. |
+| `refunded_micro` | Amount refunded this time, in micro-USD. |
+| `total_refunded_micro` | Total refunded on the payment, in micro-USD. |
+| `card_brand`, `card_last4` | The card that was refunded. |
+| `at` | When the refund was recorded. |
+| `refund_id` | Optional. The refund reference. |
 
 ## Numbers
 
 ### number.provisioned
 
+An ordered number is ready to use.
+
 ```json
 {
   "number_id": "4b8e1a67-0f3d-4c92-b5a7-6e2d9c1f8a30",
@@ -243,9 +658,17 @@ Larynth does not send this event, because auto top-up is off and your card is ne
   "country": "US"
 }
 ```
+
+| Field | Description |
+| --- | --- |
+| `number_id` | The number. |
+| `e164` | The number in E.164 form. |
+| `country` | Two-letter country code. |
 
 ### number.released
 
+A released number was returned.
+
 ```json
 {
   "number_id": "4b8e1a67-0f3d-4c92-b5a7-6e2d9c1f8a30",
@@ -253,3 +676,803 @@ Larynth does not send this event, because auto top-up is off and your card is ne
   "country": "US"
 }
 ```
+
+| Field | Description |
+| --- | --- |
+| `number_id` | The number. |
+| `e164` | The number in E.164 form. |
+| `country` | Two-letter country code. |
+
+### number.routing_changed
+
+Who answers a number changed.
+
+```json
+{
+  "number_id": "4b8e1a67-0f3d-4c92-b5a7-6e2d9c1f8a30",
+  "e164": "+14155550100",
+  "route_type": "assistant",
+  "revision": 4
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `number_id` | The number. |
+| `e164` | The number in E.164 form. |
+| `route_type` | The new routing type. |
+| `revision` | Routing revision, which goes up with each change. |
+
+### number.rental_failed
+
+A number's monthly rent could not be paid. The number is suspended and released on the date given.
+
+```json
+{
+  "number_id": "4b8e1a67-0f3d-4c92-b5a7-6e2d9c1f8a30",
+  "e164": "+14155550100",
+  "amount_micro": 2000000,
+  "release_at": "2026-11-15T00:00:00Z"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `number_id` | The number. |
+| `e164` | The number in E.164 form. |
+| `amount_micro` | Rent due, in micro-USD. |
+| `release_at` | When the number is released if the rent stays unpaid. |
+
+## Agents
+
+### agent.published
+
+A version of an agent was published or rolled back to.
+
+```json
+{
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "version": 7,
+  "kind": "publish"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `assistant_id` | The agent. |
+| `version` | The version now live. |
+| `kind` | `publish` or `rollback`. |
+
+### agent.paused
+
+An agent stopped answering new calls.
+
+```json
+{
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `assistant_id` | The agent. |
+
+### agent.resumed
+
+A paused agent answers calls again.
+
+```json
+{
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `assistant_id` | The agent. |
+
+## Inbox
+
+### inbox.item.created
+
+A new item needs someone in the inbox, such as a callback request.
+
+```json
+{
+  "item_id": "c41e7a90-2b6d-4f58-9d03-8a1b5c7e3f66",
+  "kind": "callback",
+  "group": "customers",
+  "state": "open",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `item_id` | The inbox item. |
+| `kind` | What the item is, for example `callback`, `message`, `campaign_paused`, `spending_request` or `booking_changed`. The list can grow. |
+| `group` | `customers` or `running`. |
+| `state` | `open`, `snoozed` or `done`. |
+| `call_id` | Optional. The related call. |
+| `assistant_id` | Optional. |
+| `campaign_id` | Optional. |
+
+### inbox.item.cleared
+
+An inbox item was completed or cleared.
+
+```json
+{
+  "item_id": "c41e7a90-2b6d-4f58-9d03-8a1b5c7e3f66",
+  "kind": "callback",
+  "group": "customers",
+  "state": "done",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `item_id` | The inbox item. |
+| `kind` | What the item is. |
+| `group` | `customers` or `running`. |
+| `state` | The item's state. |
+| `call_id` | Optional. |
+| `assistant_id` | Optional. |
+| `campaign_id` | Optional. |
+
+## Bookings
+
+### booking.created
+
+An agent made a booking, which may wait for approval.
+
+```json
+{
+  "booking_id": "9a7c2e41-5d38-4b6f-8e10-3c4f6a2b7d58",
+  "status": "pending_approval",
+  "start_at": "2026-11-05T15:00:00Z",
+  "end_at": "2026-11-05T15:30:00Z",
+  "timezone": "America/Chicago",
+  "connection_id": "6d2f8b13-7a45-4e90-b1c6-5e8a0d3f9c27",
+  "caller_e164_masked": "+1********0123",
+  "service": "Consultation",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `booking_id` | The booking. Use it with `GET /v1/bookings/{id}`. |
+| `status` | The booking status after the change. |
+| `start_at`, `end_at` | The slot. |
+| `timezone` | IANA time zone of the slot. |
+| `connection_id` | The calendar connection. |
+| `caller_e164_masked` | The caller's number with the middle digits hidden. |
+| `service` | Optional. |
+| `assistant_id` | Optional. |
+| `call_id` | Optional. |
+
+### booking.confirmed
+
+A booking was confirmed in the calendar.
+
+```json
+{
+  "booking_id": "9a7c2e41-5d38-4b6f-8e10-3c4f6a2b7d58",
+  "status": "confirmed",
+  "start_at": "2026-11-05T15:00:00Z",
+  "end_at": "2026-11-05T15:30:00Z",
+  "timezone": "America/Chicago",
+  "connection_id": "6d2f8b13-7a45-4e90-b1c6-5e8a0d3f9c27",
+  "caller_e164_masked": "+1********0123",
+  "service": "Consultation",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `booking_id` | The booking. Use it with `GET /v1/bookings/{id}`. |
+| `status` | The booking status after the change. |
+| `start_at`, `end_at` | The slot. |
+| `timezone` | IANA time zone of the slot. |
+| `connection_id` | The calendar connection. |
+| `caller_e164_masked` | The caller's number with the middle digits hidden. |
+| `service` | Optional. |
+| `assistant_id` | Optional. |
+| `call_id` | Optional. |
+
+### booking.cancelled
+
+A booking was cancelled.
+
+```json
+{
+  "booking_id": "9a7c2e41-5d38-4b6f-8e10-3c4f6a2b7d58",
+  "status": "cancelled",
+  "start_at": "2026-11-05T15:00:00Z",
+  "end_at": "2026-11-05T15:30:00Z",
+  "timezone": "America/Chicago",
+  "connection_id": "6d2f8b13-7a45-4e90-b1c6-5e8a0d3f9c27",
+  "caller_e164_masked": "+1********0123",
+  "service": "Consultation",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `booking_id` | The booking. Use it with `GET /v1/bookings/{id}`. |
+| `status` | The booking status after the change. |
+| `start_at`, `end_at` | The slot. |
+| `timezone` | IANA time zone of the slot. |
+| `connection_id` | The calendar connection. |
+| `caller_e164_masked` | The caller's number with the middle digits hidden. |
+| `service` | Optional. |
+| `assistant_id` | Optional. |
+| `call_id` | Optional. |
+
+### booking.declined
+
+A booking was declined, or no one approved it in time.
+
+```json
+{
+  "booking_id": "9a7c2e41-5d38-4b6f-8e10-3c4f6a2b7d58",
+  "status": "declined",
+  "start_at": "2026-11-05T15:00:00Z",
+  "end_at": "2026-11-05T15:30:00Z",
+  "timezone": "America/Chicago",
+  "connection_id": "6d2f8b13-7a45-4e90-b1c6-5e8a0d3f9c27",
+  "caller_e164_masked": "+1********0123",
+  "service": "Consultation",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `booking_id` | The booking. Use it with `GET /v1/bookings/{id}`. |
+| `status` | The booking status after the change. |
+| `start_at`, `end_at` | The slot. |
+| `timezone` | IANA time zone of the slot. |
+| `connection_id` | The calendar connection. |
+| `caller_e164_masked` | The caller's number with the middle digits hidden. |
+| `service` | Optional. |
+| `assistant_id` | Optional. |
+| `call_id` | Optional. |
+
+### booking.failed
+
+A booking could not be made, for example because the slot was taken or the calendar was unavailable.
+
+```json
+{
+  "booking_id": "9a7c2e41-5d38-4b6f-8e10-3c4f6a2b7d58",
+  "status": "failed",
+  "start_at": "2026-11-05T15:00:00Z",
+  "end_at": "2026-11-05T15:30:00Z",
+  "timezone": "America/Chicago",
+  "connection_id": "6d2f8b13-7a45-4e90-b1c6-5e8a0d3f9c27",
+  "caller_e164_masked": "+1********0123",
+  "service": "Consultation",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `booking_id` | The booking. Use it with `GET /v1/bookings/{id}`. |
+| `status` | The booking status after the change. |
+| `start_at`, `end_at` | The slot. |
+| `timezone` | IANA time zone of the slot. |
+| `connection_id` | The calendar connection. |
+| `caller_e164_masked` | The caller's number with the middle digits hidden. |
+| `service` | Optional. |
+| `assistant_id` | Optional. |
+| `call_id` | Optional. |
+
+## Tools, integrations and knowledge
+
+### integration.disconnected
+
+A calendar or tool lost its connection and needs attention.
+
+```json
+{
+  "kind": "calendar",
+  "connection_id": "6d2f8b13-7a45-4e90-b1c6-5e8a0d3f9c27",
+  "provider": "google"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `kind` | `calendar`, `workspace_http` or `mcp`. |
+| `connection_id` | Calendar only. The connection. |
+| `provider` | Calendar only. The calendar provider. |
+| `tool_id`, `name` | Tools only. The tool and its name. |
+
+### tool.disabled
+
+A tool was switched off.
+
+Larynth does not send this event today. Use `integration.disconnected` to learn when a tool needs attention.
+
+### knowledge.gap.created
+
+Callers asked a question the agent could not answer, and it is new.
+
+```json
+{
+  "gap_id": "f2c6a0d4-8e31-4b57-9a7d-1b5e3c8f6029",
+  "question": "do you open on sundays",
+  "example": "Are you open on Sundays?",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "knowledge_base_ids": [
+    "0b9e4d27-6c13-4a85-8f52-3d7a1e5c9b64"
+  ]
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `gap_id` | The question. Use it with `GET /v1/knowledge-gaps`. |
+| `question` | The question in normalized wording. |
+| `example` | The caller's own words. |
+| `assistant_id` | The agent that was asked. |
+| `call_id` | The call. |
+| `knowledge_base_ids` | Knowledge bases the agent uses. |
+
+## Issues
+
+### issue.created
+
+Larynth found a new problem with an agent.
+
+```json
+{
+  "issue_id": "1f5b9d38-6e72-4a04-8c2d-7b3a0e9f4d15",
+  "kind": "knowledge_gap",
+  "title": "Callers ask about Sunday hours",
+  "status": "open",
+  "impact": 42,
+  "occurrences": 6,
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `issue_id` | The issue. Use it with `GET /v1/issues/{id}`. |
+| `kind` | The kind of problem, for example `knowledge_gap`, `missed_booking`, `tool_error` or `transfer_failed`. |
+| `title` | A short title. |
+| `status` | `open`, `resolved` or `ignored`. |
+| `impact` | A score for how much the issue matters. Higher is worse. |
+| `occurrences` | How many calls it happened on. |
+| `resolution` | Optional. `fixed`, `auto_fixed`, `not_a_problem` or `no_recent`. |
+| `assistant_id` | Optional. |
+| `assignee_user_id` | Optional. |
+
+### issue.updated
+
+An issue changed: its status, assignee or count.
+
+```json
+{
+  "issue_id": "1f5b9d38-6e72-4a04-8c2d-7b3a0e9f4d15",
+  "kind": "knowledge_gap",
+  "title": "Callers ask about Sunday hours",
+  "status": "open",
+  "impact": 42,
+  "occurrences": 9,
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "assignee_user_id": "8e3a6c15-9b27-4d41-a0f8-2c5d7e1b9a34"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `issue_id` | The issue. Use it with `GET /v1/issues/{id}`. |
+| `kind` | The kind of problem, for example `knowledge_gap`, `missed_booking`, `tool_error` or `transfer_failed`. |
+| `title` | A short title. |
+| `status` | `open`, `resolved` or `ignored`. |
+| `impact` | A score for how much the issue matters. Higher is worse. |
+| `occurrences` | How many calls it happened on. |
+| `resolution` | Optional. `fixed`, `auto_fixed`, `not_a_problem` or `no_recent`. |
+| `assistant_id` | Optional. |
+| `assignee_user_id` | Optional. |
+
+### issue.resolved
+
+An issue was resolved or ignored.
+
+```json
+{
+  "issue_id": "1f5b9d38-6e72-4a04-8c2d-7b3a0e9f4d15",
+  "kind": "knowledge_gap",
+  "title": "Callers ask about Sunday hours",
+  "status": "resolved",
+  "impact": 42,
+  "occurrences": 6,
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "resolution": "fixed"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `issue_id` | The issue. Use it with `GET /v1/issues/{id}`. |
+| `kind` | The kind of problem, for example `knowledge_gap`, `missed_booking`, `tool_error` or `transfer_failed`. |
+| `title` | A short title. |
+| `status` | `open`, `resolved` or `ignored`. |
+| `impact` | A score for how much the issue matters. Higher is worse. |
+| `occurrences` | How many calls it happened on. |
+| `resolution` | Optional. `fixed`, `auto_fixed`, `not_a_problem` or `no_recent`. |
+| `assistant_id` | Optional. |
+| `assignee_user_id` | Optional. |
+
+## Notification events
+
+These mirror the notification settings in the dashboard. An event arrives only when the workspace turned on the webhook channel for that notification. Notification events carry the fields below plus `title` and `body` text and a `url` path in the dashboard.
+
+### notification.call.summary
+
+A call summary is ready and your notification settings send it to webhooks.
+
+```json
+{
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11",
+  "agent_name": "Front desk",
+  "caller_name": "Sam Rivera",
+  "caller_e164": "+14155550123",
+  "outcome": "completed",
+  "summary": "The caller asked to move Tuesday's appointment to Thursday afternoon. Confirmed for 3 pm.",
+  "failed": false,
+  "fields": {
+    "new_time": "Thursday 3 pm"
+  },
+  "price_micro": 150000,
+  "title": "Front desk: call from Sam Rivera",
+  "body": "The caller asked to move Tuesday's appointment to Thursday afternoon. Confirmed for 3 pm.",
+  "url": "/calls/call_01J9ZK3Q8M2V7X4N6P5R1T0WYB"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `call_id`, `assistant_id`, `agent_name` | The call and the agent. |
+| `caller_name`, `caller_e164` | The caller. |
+| `outcome` | Call outcome. |
+| `summary` | The summary text. |
+| `failed` | Whether the call missed its success goal. |
+| `fields` | Extracted data. |
+| `price_micro` | Call price in micro-USD. |
+
+Notification events carry the fields below plus `title` and `body` text and a `url` path in the dashboard.
+
+### notification.agent.paused
+
+An agent was paused.
+
+```json
+{
+  "assistant_id": "3f1c6e0a-5b1d-4c3e-9a57-2d0f4c8d1e11"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `assistant_id` | The agent. |
+
+### notification.alert.missed_calls_spike
+
+Many calls went unanswered in a short time.
+
+```json
+{
+  "count": 12,
+  "window_minutes": 30
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `count` | Missed calls in the window. |
+| `window_minutes` | The window length. |
+
+### notification.alert.transfers_failing
+
+Many transfers to a person failed in a short time.
+
+```json
+{
+  "count": 5,
+  "window_minutes": 60
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `count` | Failed transfers in the window. |
+| `window_minutes` | The window length. |
+
+### notification.alert.tool_failing
+
+A tool failed many times in a short time.
+
+```json
+{
+  "count": 8,
+  "window_minutes": 60,
+  "tool_name": "lookup_order"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `count` | Failures in the window. |
+| `window_minutes` | The window length. |
+| `tool_name` | The tool. |
+
+### notification.inbox.callback_waiting
+
+A caller asked for a callback and the request is waiting.
+
+```json
+{
+  "call_id": "call_01J9ZK3Q8M2V7X4N6P5R1T0WYB",
+  "item_id": "c41e7a90-2b6d-4f58-9d03-8a1b5c7e3f66"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `call_id` | The call. |
+| `item_id` | The inbox item. |
+
+### notification.campaign.safeguard_paused
+
+A safety check paused a campaign and it waits for review.
+
+```json
+{
+  "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12",
+  "safeguard_id": "3a9c5e71-0d28-4f64-b8a3-7e1d6c0f2b95",
+  "reason": "optout_rate",
+  "tenant_wide": false
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `campaign_id` | The campaign. |
+| `safeguard_id` | The review. |
+| `reason` | A short code for the check that tripped. |
+| `tenant_wide` | Whether other campaigns were paused too. |
+
+### notification.campaign.review_decided
+
+A review of a paused campaign was decided.
+
+```json
+{
+  "campaign_id": "a2b9d1c4-2e6f-4f0b-8f1d-7c3e5a9b0d12",
+  "safeguard_id": "3a9c5e71-0d28-4f64-b8a3-7e1d6c0f2b95",
+  "decision": "clear"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `campaign_id` | The campaign. |
+| `safeguard_id` | The review. |
+| `decision` | `clear`, `keep_paused` or `suspend_outbound`. |
+
+### notification.verification.updated
+
+Your business verification status changed.
+
+```json
+{
+  "status": "approved"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `status` | The new verification status. |
+
+### notification.spending_request.created
+
+A team member asked an admin to approve a spend, such as buying a number or launching a campaign.
+
+```json
+{
+  "spending_request_id": "a8e2c4f6-1d39-4b70-9c5e-6f0a3d7b1e82",
+  "kind": "campaign_launch",
+  "estimated_cost_micro": 12000000,
+  "workspace_name": "Example Dental",
+  "requester_name": "Sam Rivera",
+  "expires_at": "2026-11-08T12:00:00Z",
+  "title": "Sam Rivera asks for approval",
+  "body": "Launch a campaign",
+  "url": "/settings/requests"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `spending_request_id` | The request. |
+| `kind` | What is being requested. |
+| `estimated_cost_micro` | Estimated cost in micro-USD. |
+| `workspace_name`, `requester_name` | The workspace and the person asking. |
+| `expires_at` | When the request lapses. |
+
+### notification.billing.balance_low
+
+Your credit crossed a low-balance level.
+
+```json
+{
+  "level_micro": 5000000
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `level_micro` | The level that was crossed, in micro-USD. |
+
+### notification.billing.spend_limit_alert
+
+Spend reached a threshold of a spending limit.
+
+```json
+{
+  "period": "monthly",
+  "threshold_pct": 80,
+  "cap_micro": 500000000,
+  "used_micro": 401250000,
+  "stop_inbound": false
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `period` | `daily` or `monthly`. |
+| `threshold_pct` | The threshold that was crossed. |
+| `cap_micro`, `used_micro` | The cap and spend so far, in micro-USD. |
+| `stop_inbound` | Whether the cap also stops inbound calls. |
+
+### notification.billing.bundle_renewed
+
+A bundle pack renewed.
+
+```json
+{
+  "bundle_key": "starter",
+  "amount_micro": 49000000,
+  "credit_micro": 60000000,
+  "period_start": "2026-11-01T00:00:00Z",
+  "payment_id": "e9d2b7a4-1c85-4f03-b6a8-0d3e7c5f1b92"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `bundle_key` | Which bundle pack. |
+| `amount_micro`, `credit_micro` | Charged and credited, in micro-USD. |
+| `period_start` | Start of the new period. |
+| `payment_id` | The payment. |
+
+### notification.billing.bundle_renewal_failed
+
+A bundle pack renewal failed.
+
+```json
+{
+  "bundle_key": "starter",
+  "amount_micro": 49000000,
+  "retry_at": "2026-11-04T00:00:00Z",
+  "reason": "card_declined"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `bundle_key` | Which bundle pack. |
+| `amount_micro` | Amount due, in micro-USD. |
+| `retry_at` | Optional. When Larynth tries again. |
+| `reason` | Why it failed. |
+
+### notification.billing.payment_refunded
+
+A payment was refunded.
+
+```json
+{
+  "payment_id": "e9d2b7a4-1c85-4f03-b6a8-0d3e7c5f1b92",
+  "refund_id": "re_0123456789",
+  "refunded_micro": 5000000,
+  "card_brand": "visa",
+  "card_last4": "4242"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `payment_id` | The payment. |
+| `refund_id` | The refund. |
+| `refunded_micro` | Amount refunded, in micro-USD. |
+| `card_brand`, `card_last4` | The card. |
+
+### notification.number.rental_failed
+
+A number's rent could not be paid.
+
+```json
+{
+  "number_id": "4b8e1a67-0f3d-4c92-b5a7-6e2d9c1f8a30",
+  "e164": "+14155550100",
+  "amount_micro": 2000000,
+  "release_at": "2026-11-15T00:00:00Z"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `number_id`, `e164` | The number. |
+| `amount_micro` | Rent due, in micro-USD. |
+| `release_at` | When the number is released if unpaid. |
+
+### notification.campaign.completed
+
+Would report when a campaign finishes.
+
+Larynth does not send this event today. Use `campaign.completed` instead.
+
+### notification.campaign.paused
+
+Would report when a campaign pauses.
+
+Larynth does not send this event today. Use `campaign.paused` instead.
+
+### notification.billing.top_up_succeeded
+
+Would report when a top-up succeeds.
+
+Larynth does not send this event today. Use `billing.top_up.succeeded` instead.
+
+### notification.billing.auto_top_up_failed
+
+Would report when an auto top-up fails.
+
+Larynth does not send this event. Auto top-up is off, so there is nothing to report.
+
+### notification.number.provisioned
+
+Would report when a number is ready.
+
+Larynth does not send this event today. Use `number.provisioned` instead.
+
+### notification.number.released
+
+Would report when a number is released.
+
+Larynth does not send this event today. Use `number.released` instead.
+
+### notification.compliance.optout_alert
+
+Would report when a person opts out.
+
+Larynth does not send this event today. Use `compliance.opt_out` instead.
