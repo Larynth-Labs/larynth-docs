@@ -168,6 +168,8 @@
               "DELETE /v1/assistants/{id}/draft",
               "GET /v1/assistants/{id}/draft",
               "PUT /v1/assistants/{id}/draft",
+              "DELETE /v1/assistants/{id}/draft/greeting-audio",
+              "PUT /v1/assistants/{id}/draft/greeting-audio",
               "POST /v1/assistants/{id}/draft/tools:refresh",
               "POST /v1/assistants/{id}/draft:convert-to-flow",
               "POST /v1/assistants/{id}/duplicate",
@@ -181,6 +183,7 @@
               "GET /v1/assistants/{id}/versions/{v}",
               "GET /v1/assistants/{id}/versions/{v}/compare",
               "GET /v1/assistants/{id}/versions/{v}/flow",
+              "GET /v1/assistants/{id}/versions/{v}/greeting-audio",
               "POST /v1/assistants/{id}/versions/{v}/publish",
               "GET /v1/assistants/{id}/versions/{v}/script-check"
             ]
@@ -540,6 +543,8 @@
               "GET /v1/catalog/guardrails",
               "GET /v1/catalog/languages",
               "GET /v1/catalog/models",
+              "GET /v1/catalog/presets",
+              "GET /v1/catalog/price-estimate",
               "GET /v1/catalog/turn-presets",
               "GET /v1/catalog/voices"
             ]

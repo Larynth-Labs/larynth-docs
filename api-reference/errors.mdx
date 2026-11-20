@@ -35,6 +35,31 @@ Compliance denials use the code of the rule that blocked the call, which starts 
 - `429` means slow down. Wait for the number of seconds in the `Retry-After` header, then retry.
 - `5xx` means a problem on our side. Retry with backoff. For requests that place calls, send an [Idempotency-Key](/api-reference/idempotency) so a retry cannot place a second call.
 
+## Rate limits
+
+Requests to `/v1` share one general limit of 20 requests per second, with a burst of up to 40. The limit is counted in memory by each API server process today, so treat the numbers as a ceiling to stay under, not a quota you can plan around.
+
+A request over the limit returns `429` with the code `rate_limited`. The `Retry-After` header holds the number of whole seconds to wait before you try again.
+
+```http
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/problem+json
+Retry-After: 1
+```
+
+```json
+{
+  "type": "about:blank",
+  "title": "Too Many Requests",
+  "status": 429,
+  "code": "rate_limited",
+  "detail": "too many requests",
+  "request_id": "3f9c2a7e41b05d68c1e2f0a4"
+}
+```
+
+Wait for the time in `Retry-After`, then retry. Spread bulk work over time instead of sending it in one burst. Some operations have their own limits and return their own `429` codes, listed below.
+
 ## Error codes
 
 ### Requests

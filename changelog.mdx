@@ -7,6 +7,15 @@ sidebarTitle: "Changelog"
 keywords: ["changelog", "release notes", "updates", "whats new"]
 ---
 
+<Update label="November 20, 2026" description="Developers" tags={["Developers"]}>
+  ## API reference
+
+  New endpoints record, remove and play an assistant's greeting in your own voice: `PUT` and `DELETE /v1/assistants/{id}/draft/greeting-audio`, and `GET /v1/assistants/{id}/versions/{v}/greeting-audio`.
+  `GET /v1/catalog/presets` lists builder presets with price and latency, and `GET /v1/catalog/price-estimate` returns the price per minute and expected latency of a model selection.
+  Catalog models report `retires_on`, `latency_p95_ms`, `latency_samples`, `latency_source` and `latency_measured_at`, and `latency_basis` is now `live` or `lab`.
+  [Errors](/api-reference/errors) now describes the request rate limit and the `Retry-After` header on `429`.
+</Update>
+
 <Update label="November 18, 2026" description="Developers" tags={["Developers"]}>
   ## API reference and webhooks
 
