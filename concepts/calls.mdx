@@ -33,7 +33,15 @@ A call moves through `queued`, `dialing` and `ringing` to `in_progress`, and end
 
 ## Ending a call
 
-`POST /v1/calls/{call_id}/end` hangs up an active call.
+`POST /v1/calls/{call_id}/end` hangs up an active call. You can send a `reason`, up to 200 characters. The body is optional.
+
+`hangup_by` on a call says who ended it:
+
+| Value | Meaning |
+| --- | --- |
+| `local` | Your side ended it. An end from the API or the console on a phone call counts as local. |
+| `remote` | The other side ended it. Ending a browser test call from the dashboard counts as the caller, so it is `remote`. |
+| `system` | Larynth ended it. |
 
 ## Voicemail and answering machines
 

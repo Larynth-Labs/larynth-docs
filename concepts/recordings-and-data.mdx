@@ -37,6 +37,14 @@ You can shorten the retention of recordings and transcripts. Compliance records 
 
 `GET /v1/recordings/{id}/audio` streams the audio as WAV. Each access is logged.
 
+### Play a whole call
+
+`GET /v1/calls/{call_id}/recording/audio` streams both sides of a call as one mono WAV. The caller and the agent are mixed together. It supports byte ranges, so a player can seek. Recordings over 60 minutes answer `200` only. Each playback is logged. It needs the `recordings:read` scope.
+
+`GET /v1/calls/{call_id}/recording/peaks` returns waveform peaks for a call. There is one lane for the caller and one for the agent. Each lane has the same number of points on the same timeline, normalised from 0 to 1. `duration_ms` is the length of the timeline.
+
+The `recording` object on a call lists the playable `lanes`: `caller`, `agent` or both. `started_offset_ms` is when recording started, relative to `answered_at`. The recording starts after the recording notice, so it is later than the answer.
+
 ## Training
 
 Your calls are not used to train models unless you opt in. It is off by default.

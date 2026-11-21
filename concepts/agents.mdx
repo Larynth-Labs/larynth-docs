@@ -38,8 +38,10 @@ flowchart LR
 | `tools` | Actions the agent can take: end the call, record an opt-out, call an HTTP endpoint, or transfer. See [Handoff](/concepts/handoff). |
 | `post_call` | The summary, the fields to extract and a success check. See [Summaries and extraction](/concepts/summaries). |
 | `max_call_seconds` | A cap on call length. |
+| `call_handling.ambient_sound` | A low background sound the caller hears. Use a `key` from `GET /v1/catalog/ambient-sounds`. Unset is off. It is never recorded. |
+| `call_handling.ambient_level` | How loud the sound is: `low`, `medium` or `high`. Unset is `medium`. |
 
-Voices and models are chosen from the catalog. List what is enabled with `GET /v1/catalog/voices` and `GET /v1/catalog/models`.
+Voices and models are chosen from the catalog. List what is enabled with `GET /v1/catalog/voices` and `GET /v1/catalog/models`. `GET /v1/catalog/ambient-sounds` lists the background sounds.
 
 ## Modes
 

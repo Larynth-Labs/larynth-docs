@@ -7,6 +7,17 @@ sidebarTitle: "Changelog"
 keywords: ["changelog", "release notes", "updates", "whats new"]
 ---
 
+<Update label="November 21, 2026" description="Developers" tags={["Developers"]}>
+  ## API reference
+
+  `GET /v1/calls/{call_id}/recording/audio` streams both sides of a call as one mono WAV, with byte ranges.
+  `GET /v1/calls/{call_id}/recording/peaks` returns waveform peaks for the caller and the agent on one timeline.
+  The `recording` object on a call gains `lanes` and `started_offset_ms`, which is when recording started relative to `answered_at`.
+  `GET /v1/catalog/ambient-sounds` lists the background sounds. `call_handling.ambient_sound` takes a key from that list, and the new `call_handling.ambient_level` sets the volume: `low`, `medium` or `high`.
+  [Calls](/concepts/calls) now describes the optional `reason` on `POST /v1/calls/{call_id}/end` and the values of `hangup_by`.
+  Webhook event type groups now include `bookings`, `issues`, `tools`, `knowledge` and `integrations`.
+</Update>
+
 <Update label="November 20, 2026" description="Developers" tags={["Developers"]}>
   ## API reference
 

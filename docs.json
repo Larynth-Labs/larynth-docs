@@ -267,6 +267,8 @@
               ]
             },
             "pages": [
+              "GET /v1/calls/{call_id}/recording/audio",
+              "GET /v1/calls/{call_id}/recording/peaks",
               "GET /v1/calls/{call_id}/recordings",
               "GET /v1/recordings/{id}/audio",
               "GET /v1/recordings/{id}/peaks"
@@ -540,6 +542,7 @@
               ]
             },
             "pages": [
+              "GET /v1/catalog/ambient-sounds",
               "GET /v1/catalog/guardrails",
               "GET /v1/catalog/languages",
               "GET /v1/catalog/models",
