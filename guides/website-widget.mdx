@@ -1,0 +1,76 @@
+---
+title: "Website voice widget"
+description: "Let visitors talk to a published agent from a button on your site."
+sidebarTitle: "Website widget"
+keywords: ["widget", "website", "embed", "voice", "snippet", "csp", "origins"]
+---
+
+The widget adds a call button to your website. A visitor taps it, allows the microphone and talks to your published agent in the browser. There is no phone call, so transfers, SMS and keypad entry are not available.
+
+## Add it to your site
+
+Open **Website widget** in the dashboard, pick a published agent, add your site and turn the widget on. Then paste the code before the closing `</body>` tag on every page that should show the button:
+
+```html
+<script src="https://app.larynth.com/widget/v1.js" data-key="lxpk_..." async></script>
+```
+
+The key is safe to show in page source. It works only on the sites you allow. If it leaks, replace it in the dashboard and update your pages. The old `/widget.js` address keeps working, but new installs should use `/widget/v1.js`.
+
+## Allowed sites
+
+Add each site as an exact address, such as `https://www.example.com`. You can add up to 10. Wildcards are not supported, and `https://example.com` and `https://www.example.com` are different sites. Use **Add www.** to add the other form in one click.
+
+## Limits
+
+| Setting | Default | Range |
+| - | - | - |
+| Calls a day (UTC) | 30 | 1 to 10,000 |
+| Longest call | 10 minutes | 1 to 30 minutes |
+| Calls at once | 2 | 1 to 50 |
+| Calls per visitor an hour | 5 | 1 to 60 |
+
+Widget calls never use your last phone line. Calls at once is capped at your plan's concurrency minus one, so a busy site cannot block phone calls. When a limit is reached, visitors see a busy message. You get a notification at 80% and at 100% of the daily limit.
+
+Widget calls are billed per minute under **Website calls**, from your paid balance. Free credit does not cover them. A visitor must pass a human check before each call.
+
+## Recording notice
+
+If your agent records calls, the widget shows a recording notice before the browser asks for the microphone. Add your privacy page in the widget settings to link it from the notice. The visitor also hears the AI disclosure at the start of the call.
+
+## Page events
+
+The widget sends events on `window`. They carry no personal data.
+
+| Event | When | Detail |
+| - | - | - |
+| `larynth:widget-open` | The panel opens | none |
+| `larynth:call-started` | The call connects | none |
+| `larynth:call-ended` | The call ends | `reason`, `duration_s` |
+| `larynth:error` | The call could not start | `code` |
+
+```js
+window.addEventListener('larynth:call-ended', (event) => {
+  console.log(event.detail.reason, event.detail.duration_s);
+});
+```
+
+`reason` is one of `hangup`, `limit`, `dropped`, `muted` or `paused`.
+
+## Content security policy
+
+If your site sets a content security policy, allow the widget's origin:
+
+```text
+script-src https://app.larynth.com; connect-src https://app.larynth.com; frame-src https://app.larynth.com
+```
+
+## Troubleshooting
+
+| Problem | What to do |
+| - | - |
+| No button appears | Check that the widget is on, the agent is published and the page's exact address is in your allowed sites. |
+| The browser blocks the microphone | The page must use `https://`, and the visitor must allow the microphone for your site. |
+| The call fails on a site with a strict policy | Add the policy lines above. Ad blockers can also block the widget. |
+| On iPhone the call ends when the screen locks | Safari pauses background tabs. The widget shows **Call paused** and ends the call after 30 seconds. |
+| Visitors see a busy message | A daily, visitor or line limit was reached, or the balance is empty. Check the widget settings and billing. |

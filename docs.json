@@ -121,7 +121,8 @@
             "icon": "book-open",
             "pages": [
               "guides/build-and-publish-an-agent",
-              "guides/api-keys-and-scopes"
+              "guides/api-keys-and-scopes",
+              "guides/website-widget"
             ]
           },
           {
